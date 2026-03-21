@@ -1,0 +1,53 @@
+id: research_009
+name: "Evaluate credibility of sources"
+category: research
+description: "Evaluate the credibility of 5 sources on the same topic and rank them with justification"
+difficulty: hard
+
+system_prompt: |
+  You are a research methodologist specializing in source evaluation. Assess sources for credibility using established criteria: authority, accuracy, objectivity, currency, and coverage. Provide specific evidence-based justifications.
+
+user_message: |
+  Evaluate the credibility of the following 5 sources that all discuss the health effects of intermittent fasting. Rank them from most to least credible with detailed justifications addressing authority, methodology, potential bias, and limitations.
+
+  SOURCE 1 — Journal Article:
+  Title: "Metabolic Effects of Time-Restricted Eating: A Randomized Controlled Trial"
+  Published in: New England Journal of Medicine, March 2024
+  Authors: Dr. Sarah Mitchell (Harvard Medical School), Dr. James Park (Johns Hopkins), Dr. Fatima Al-Rashid (Mayo Clinic)
+  Study: 12-month RCT with 1,200 participants across 8 clinical sites. Double-blinded where possible (food timing is hard to blind). Primary endpoints: HbA1c, fasting insulin, body composition via DEXA. Funding: NIH Grant R01-DK129847. Conflicts of interest: None declared. Results: Statistically significant improvements in insulin sensitivity (p<0.001), modest weight loss (mean 3.2kg vs 1.1kg control), no significant difference in lean mass preservation. Dropout rate: 18%.
+
+  SOURCE 2 — Industry Blog Post:
+  Title: "Why Intermittent Fasting Is the #1 Biohack of 2024"
+  Published on: OptimalLife.co (supplement company blog), January 2024
+  Author: "The OptimalLife Team"
+  Content: Claims IF "supercharges fat burning by 300%," "reverses aging at the cellular level," and "eliminates the need for most medications." Cites "over 3,000 studies" without specific references. Includes affiliate links to fasting support supplements ($49.99/month). Testimonials from 5 customers who lost 30-50 lbs. No methodology section, no limitations discussed. Concludes with a discount code for their fasting supplement stack.
+
+  SOURCE 3 — Systematic Review:
+  Title: "Intermittent Fasting and Cardiometabolic Health: A Systematic Review and Meta-Analysis"
+  Published in: Annual Review of Nutrition, 2024
+  Authors: Dr. Li Wei (University of Sydney), Dr. Marcus Thompson (University of Oxford)
+  Study: Systematic review of 47 RCTs (total N=9,832). Pre-registered protocol on PROSPERO. Assessed risk of bias using Cochrane RoB 2 tool. Found moderate-certainty evidence for improvements in body weight, blood pressure, and lipid profiles. Found low-certainty evidence for long-term cardiovascular outcomes. Noted significant heterogeneity (I²=72%) across studies. Funding: Australian Research Council. Limitations clearly stated: most included studies <6 months duration, predominantly young healthy populations.
+
+  SOURCE 4 — News Article:
+  Title: "New Study Links Intermittent Fasting to 91% Higher Risk of Heart Death"
+  Published in: DailyHealthAlert.com, March 2024
+  Author: Staff Reporter (unnamed)
+  Content: Reports on a conference abstract (not peer-reviewed) presented at an American Heart Association meeting. The abstract analyzed NHANES self-reported dietary data and found an association between eating within an 8-hour window and cardiovascular mortality. Article does not mention: the study was observational, relied on two 24-hour dietary recalls, had potential confounders (participants with 8-hour windows may have been skipping meals due to illness or shift work), and the abstract had not undergone peer review. Headline was widely shared on social media.
+
+  SOURCE 5 — YouTube Video:
+  Title: "I Did Intermittent Fasting for 365 Days — Here's What Happened"
+  Creator: FitnessDr_Mike (1.2M subscribers), a licensed chiropractor
+  Content: Personal anecdote about 16:8 fasting for a year. Shows before/after photos. References "studies" generally but links only to his own previous videos. Claims IF cured his "brain fog, joint pain, and pre-diabetes" — provides no medical records. Monetized video with ads for a meal planning app. Comment section moderated to remove critical comments per viewer reports. Video has 4.2M views.
+
+expected:
+  response_contains:
+    - "peer-reviewed"
+    - "conflict of interest"
+    - "observational"
+    - "meta-analysis"
+    - "anecdotal"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

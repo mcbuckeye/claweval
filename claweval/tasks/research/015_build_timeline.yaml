@@ -1,0 +1,51 @@
+id: research_015
+name: "Build a timeline from unstructured event descriptions"
+category: research
+description: "Extract, order, and reconcile dates from unstructured text to build an accurate chronological timeline"
+difficulty: hard
+
+system_prompt: |
+  You are a chronological analyst. Extract events and dates from unstructured text, resolve ambiguities, reconcile conflicting timestamps, and produce an accurate, ordered timeline. Flag any dates that are uncertain or contradictory.
+
+tools:
+  - name: web_search
+    description: "Search the web for information"
+    parameters:
+      type: object
+      properties:
+        query:
+          type: string
+      required: ["query"]
+
+mock_tool_responses:
+  web_search:
+    response: "Meridian Health Systems is a fictional healthcare technology company. No real-world timeline information is available."
+
+user_message: |
+  Build a comprehensive chronological timeline of events from the following unstructured sources related to the Meridian Health Systems data breach. Resolve any conflicting dates, flag uncertainties, and note which source supports each event.
+
+  SOURCE 1 — Internal Incident Report (written March 18, 2025):
+  "The first anomalous database query was logged on January 7 at 03:42 UTC. Our SOC team did not flag this until January 12 when the automated anomaly detection threshold was exceeded. Preliminary investigation began that same day. By January 15 we had confirmed unauthorized access to Patient Database Cluster 3, containing records for approximately 2.4 million patients. The threat actor had been present in our network since at least late December — forensic analysis of VPN logs later pinpointed initial access to December 23, 2024, via compromised credentials of a third-party IT vendor (NovaTech Solutions). We notified our legal team on January 15, our board of directors on January 16, and outside counsel (Hargrove & Mitchell LLP) was retained on January 17. Law enforcement (FBI Cyber Division) was contacted on January 19 after legal consultation."
+
+  SOURCE 2 — NovaTech Solutions Statement (released February 28, 2025):
+  "NovaTech was informed by Meridian Health on January 22 that credentials associated with one of our service accounts may have been involved in a security event. We immediately revoked all Meridian-related credentials and began our own investigation. Our analysis determined that the service account in question was compromised via a phishing email received by one of our employees on December 19, 2024. The employee reported the suspicious email on December 20, but due to a process failure in our security operations center, the report was not actioned until notified by Meridian in January. We note that Meridian did not inform us until 7 days after they confirmed the breach involved our credentials, contrary to the 48-hour notification requirement in our service agreement."
+
+  SOURCE 3 — State Attorney General Press Release (March 5, 2025):
+  "The Office of the Attorney General has opened an investigation into the Meridian Health Systems data breach affecting approximately 3.1 million patients. Our office was notified by Meridian on February 3, 2025 — 19 days after the company confirmed the breach on January 15. State law requires notification within 10 business days of breach confirmation. Meridian began notifying affected patients on February 12. Our office has also subpoenaed NovaTech Solutions regarding their credential management practices. We note that a similar breach involving NovaTech credentials occurred at Cascade Medical Group in September 2024, raising questions about systemic security deficiencies."
+
+  SOURCE 4 — Cybersecurity Firm Blog Post (Sentinel Cyber, March 10, 2025):
+  "Our threat intelligence team independently identified the Meridian breach on January 9 through dark web monitoring — we observed the threat actor (tracked as 'PharmaLeech') advertising 'fresh healthcare data' on a prominent forum. We notified Meridian's CISO via encrypted email on January 10. According to our sources, PharmaLeech had been operating inside Meridian's network since mid-December 2024, which aligns with our earlier intelligence about NovaTech credential harvesting activity we first detected on December 17. We had issued a threat advisory to our clients about NovaTech-related credential risks on December 21, 2024, but Meridian is not a Sentinel Cyber client. The exfiltrated data included names, SSNs, medical records, and insurance information. We estimate the actual number of affected records to be closer to 3.4 million based on the volume of data offered for sale."
+
+expected:
+  response_contains:
+    - "December"
+    - "phishing"
+    - "notification"
+    - "contradiction"
+    - "exfiltration"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    response_quality: 0.7

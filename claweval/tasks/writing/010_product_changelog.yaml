@@ -1,0 +1,56 @@
+id: writing_010
+name: "Developer-focused product changelog"
+category: writing
+description: "Write a compelling product changelog for a developer audience"
+difficulty: hard
+
+system_prompt: |
+  You are a developer relations writer who creates engaging, technically precise product changelogs that developers actually want to read.
+
+user_message: |
+  Write a product changelog entry for version 3.0 of "Nexus," a developer platform that provides APIs for authentication, database, and real-time messaging. This is a major release. Here are the raw changes from engineering:
+
+  Breaking Changes:
+  - Auth API: JWT tokens now use RS256 instead of HS256. Old tokens will be rejected after May 1, 2026.
+  - Database API: The `query()` method signature changed from `query(sql, params)` to `query(sql, options)` where options is an object containing `params`, `timeout`, and `consistency_level`.
+  - WebSocket API: Removed deprecated v1 protocol. All clients must use v2 protocol.
+
+  New Features:
+  - Row-level security (RLS) policies via the dashboard and API
+  - Branching for databases (like git branches for your schema and data, supports create/merge/delete)
+  - Edge Functions now support Python 3.12 in addition to JavaScript/TypeScript
+  - Real-time presence API (track who is online, custom status, typing indicators)
+  - New CLI tool `nexus migrate` that generates migration files from schema diff
+
+  Improvements:
+  - Query performance improved 3x for joins across 5+ tables
+  - Cold start time for Edge Functions reduced from 800ms to 120ms
+  - Dashboard now shows real-time query analytics with P50/P95/P99 latency
+  - Connection pooling now supports up to 10,000 concurrent connections (was 1,000)
+
+  Bug Fixes:
+  - Fixed race condition in real-time subscriptions when multiple clients subscribe simultaneously
+  - Fixed memory leak in connection pooler that caused gradual degradation over 72+ hours
+  - Fixed incorrect row count in paginated queries when using cursor-based pagination
+
+  Requirements:
+  1. Write in a tone that is technically precise but enthusiastic — like Vercel or Supabase changelogs.
+  2. Organize with clear sections: Breaking Changes, New Features, Improvements, Bug Fixes.
+  3. For breaking changes, include a migration guide snippet showing before/after code examples.
+  4. For each new feature, write 2-3 sentences explaining the value proposition, not just what it does.
+  5. Include code examples for at least 3 features (database branching, RLS, presence API).
+  6. Add a "Upgrade Guide" section at the end with step-by-step instructions.
+  7. The tone should make developers excited to upgrade, not dread the breaking changes.
+
+expected:
+  response_contains:
+    - "RS256"
+    - "breaking"
+    - "migration"
+    - "branch"
+    - "edge function"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

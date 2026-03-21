@@ -1,0 +1,35 @@
+id: speed_010
+name: "Rapid-fire five sequential answers"
+category: speed
+description: "Answer five distinct technical questions in sequence — measures throughput consistency across multiple outputs"
+difficulty: hard
+
+system_prompt: |
+  You are a senior software engineer and computer science educator. For each question, provide a thorough answer of at least 150 words. Number your answers clearly (Answer 1, Answer 2, etc.) and include code examples where appropriate.
+
+user_message: |
+  Answer each of the following five questions thoroughly. Each answer should be at least 150 words and include a code example where applicable.
+
+  Question 1: Explain how a B+ tree differs from a B-tree and why B+ trees are preferred for database indexing. Include a pseudocode example of a search operation on a B+ tree.
+
+  Question 2: Describe the CAP theorem in distributed systems. Give a concrete scenario for each of the three pairwise combinations (CP, AP, CA) with a named real-world system as an example.
+
+  Question 3: What is the difference between optimistic and pessimistic concurrency control? Write a Python code example demonstrating optimistic locking with a version field using SQLAlchemy.
+
+  Question 4: Explain how consistent hashing works and why it is used in distributed caches. Include a Python implementation of a minimal consistent hash ring with virtual nodes.
+
+  Question 5: Describe the Raft consensus algorithm's leader election process step by step. Explain what happens during a network partition and how the cluster recovers.
+
+expected:
+  response_contains:
+    - "Answer 1"
+    - "Answer 2"
+    - "Answer 3"
+    - "Answer 4"
+    - "Answer 5"
+    - "consistent hashing"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

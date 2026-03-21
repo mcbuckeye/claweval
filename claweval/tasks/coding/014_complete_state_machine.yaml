@@ -1,0 +1,163 @@
+id: coding_014
+name: "Complete a half-written state machine"
+category: coding
+description: "Finish implementing a state machine for an order fulfillment workflow with guards and side effects"
+difficulty: hard
+
+system_prompt: |
+  You are an expert Python developer with deep knowledge of state machine patterns, domain modeling, and event-driven architectures.
+
+user_message: |
+  Complete the following half-written state machine for an order fulfillment system. The transitions, guards, and side effects marked with TODO must be implemented.
+
+  ```python
+  from __future__ import annotations
+  import logging
+  from enum import Enum, auto
+  from typing import Callable, Optional, Dict, List, Any
+  from dataclasses import dataclass, field
+  from datetime import datetime
+
+  logger = logging.getLogger(__name__)
+
+  class OrderState(Enum):
+      DRAFT = auto()
+      SUBMITTED = auto()
+      PAYMENT_PENDING = auto()
+      PAYMENT_FAILED = auto()
+      PAID = auto()
+      PICKING = auto()
+      PICKED = auto()
+      SHIPPING = auto()
+      DELIVERED = auto()
+      CANCELLED = auto()
+      REFUND_PENDING = auto()
+      REFUNDED = auto()
+
+  class OrderEvent(Enum):
+      SUBMIT = auto()
+      PROCESS_PAYMENT = auto()
+      PAYMENT_SUCCESS = auto()
+      PAYMENT_FAILURE = auto()
+      RETRY_PAYMENT = auto()
+      START_PICKING = auto()
+      PICKING_COMPLETE = auto()
+      SHIP = auto()
+      DELIVER = auto()
+      CANCEL = auto()
+      REQUEST_REFUND = auto()
+      REFUND_COMPLETE = auto()
+
+  @dataclass
+  class OrderContext:
+      order_id: str
+      items: List[dict]
+      total_amount: float
+      payment_attempts: int = 0
+      max_payment_attempts: int = 3
+      tracking_number: Optional[str] = None
+      cancelled_reason: Optional[str] = None
+      history: List[dict] = field(default_factory=list)
+      metadata: Dict[str, Any] = field(default_factory=dict)
+
+  @dataclass
+  class Transition:
+      source: OrderState
+      event: OrderEvent
+      target: OrderState
+      guard: Optional[Callable[[OrderContext], bool]] = None
+      action: Optional[Callable[[OrderContext], None]] = None
+
+  class InvalidTransitionError(Exception):
+      pass
+
+  class GuardFailedError(Exception):
+      pass
+
+  class OrderStateMachine:
+      def __init__(self, context: OrderContext, initial_state: OrderState = OrderState.DRAFT):
+          self._state = initial_state
+          self._context = context
+          self._transitions: List[Transition] = []
+          self._on_enter: Dict[OrderState, List[Callable]] = {}
+          self._on_exit: Dict[OrderState, List[Callable]] = {}
+          self._setup_transitions()
+
+      @property
+      def state(self) -> OrderState:
+          return self._state
+
+      @property
+      def context(self) -> OrderContext:
+          return self._context
+
+      def _setup_transitions(self):
+          # TODO: Define ALL valid transitions with appropriate guards and actions.
+          # Requirements:
+          # 1. DRAFT -> SUBMITTED (on SUBMIT): guard: order must have at least 1 item
+          #    and total_amount > 0. Action: record submission timestamp.
+          # 2. SUBMITTED -> PAYMENT_PENDING (on PROCESS_PAYMENT): action: increment
+          #    payment_attempts.
+          # 3. PAYMENT_PENDING -> PAID (on PAYMENT_SUCCESS): action: log success.
+          # 4. PAYMENT_PENDING -> PAYMENT_FAILED (on PAYMENT_FAILURE): action: log failure.
+          # 5. PAYMENT_FAILED -> PAYMENT_PENDING (on RETRY_PAYMENT): guard: payment_attempts
+          #    < max_payment_attempts. Action: increment payment_attempts.
+          # 6. PAYMENT_FAILED -> CANCELLED (on CANCEL): action: set cancelled_reason.
+          # 7. PAID -> PICKING (on START_PICKING): no guard.
+          # 8. PICKING -> PICKED (on PICKING_COMPLETE): no guard.
+          # 9. PICKED -> SHIPPING (on SHIP): guard: tracking_number must be set.
+          #    Action: log shipment.
+          # 10. SHIPPING -> DELIVERED (on DELIVER): action: record delivery timestamp.
+          # 11. DRAFT/SUBMITTED/PAID -> CANCELLED (on CANCEL): action: set cancelled_reason.
+          # 12. DELIVERED -> REFUND_PENDING (on REQUEST_REFUND): guard: delivery was
+          #     within 30 days. Action: log refund request.
+          # 13. REFUND_PENDING -> REFUNDED (on REFUND_COMPLETE): action: log refund.
+          pass
+
+      # TODO: Implement on_enter / on_exit callback registration
+      def on_enter(self, state: OrderState, callback: Callable) -> None:
+          pass
+
+      def on_exit(self, state: OrderState, callback: Callable) -> None:
+          pass
+
+      # TODO: Implement the send() method that:
+      # 1. Finds valid transition for current state + event
+      # 2. Evaluates the guard (if any) — raise GuardFailedError if guard returns False
+      # 3. Fires on_exit callbacks for current state
+      # 4. Executes the transition action (if any)
+      # 5. Updates the state
+      # 6. Fires on_enter callbacks for new state
+      # 7. Records the transition in context.history
+      # 8. Raises InvalidTransitionError if no matching transition found
+      def send(self, event: OrderEvent, **kwargs) -> OrderState:
+          pass
+
+      # TODO: Implement can() to check if an event is valid from current state
+      def can(self, event: OrderEvent) -> bool:
+          pass
+
+      # TODO: Implement available_events() returning list of events valid from current state
+      def available_events(self) -> List[OrderEvent]:
+          pass
+  ```
+
+  Complete the entire implementation. All TODO sections must be fully implemented. Include:
+  - All 13 transition rules with correct guards and actions
+  - The send() method with full lifecycle (guard check, exit callbacks, action, state update, enter callbacks, history recording)
+  - The can() and available_events() methods
+  - Proper error handling throughout
+
+expected:
+  response_contains:
+    - "InvalidTransitionError"
+    - "GuardFailedError"
+    - "payment_attempts"
+    - "tracking_number"
+    - "on_enter"
+    - "history"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

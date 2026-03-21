@@ -1,0 +1,51 @@
+id: research_012
+name: "Identify gaps in a research summary"
+category: research
+description: "Identify methodological gaps, missing perspectives, and unanswered questions in a research summary"
+difficulty: hard
+
+system_prompt: |
+  You are a senior research reviewer. Critically analyze research summaries to identify gaps in methodology, scope, representation, and conclusions. Be specific and constructive.
+
+user_message: |
+  The following is an executive summary of a research initiative on urban micromobility (e-scooters, e-bikes). Identify all significant gaps in the research — including methodological limitations, missing populations, unconsidered variables, geographic bias, temporal limitations, and areas where conclusions may not be supported by the described evidence.
+
+  EXECUTIVE SUMMARY — "Urban Micromobility: Safety, Adoption, and Infrastructure" (2024)
+
+  Research Overview:
+  This 18-month study examined micromobility usage patterns, safety outcomes, and infrastructure needs in 6 US cities: San Francisco, Austin, Portland, Denver, Nashville, and Miami. The study period was April 2023 through September 2024.
+
+  Methodology:
+  We collected trip data from 3 major micromobility operators (Lime, Bird, Spin) totaling 14.2 million trips. Safety data was gathered from hospital emergency departments (n=4,800 injury records) and police accident reports (n=2,100). User surveys were conducted online via the operator apps (n=28,000 respondents, 12% response rate). Infrastructure assessment was performed by a team of 8 urban planners who evaluated 340 miles of bike lanes and 1,200 scooter parking zones.
+
+  Key Findings:
+  1. Ridership grew 34% year-over-year across all cities, with strongest growth in the 25-34 age demographic.
+  2. Injury rates decreased 18% when protected bike lanes were present versus painted lanes.
+  3. 67% of trips replaced car trips under 3 miles, suggesting significant potential for emissions reduction.
+  4. Average trip duration: 12 minutes. Average distance: 1.8 miles. Peak usage: 7-9 AM and 5-7 PM weekdays.
+  5. User satisfaction averaged 4.1/5.0. Top complaint: insufficient parking infrastructure (42%).
+  6. Revenue per vehicle per day averaged $14.20, suggesting financial viability for operators.
+  7. E-bikes showed 40% fewer injuries per mile than e-scooters.
+  8. Helmet usage was observed in only 11% of riders.
+
+  Conclusions:
+  Micromobility is a safe, growing, financially viable transportation option that reduces car dependency. Cities should invest in protected infrastructure and expand micromobility access to realize environmental and congestion benefits. We recommend tripling protected lane mileage by 2027 and eliminating e-scooter speed limits in protected lanes.
+
+  Policy Recommendations:
+  - Mandate helmet use for all micromobility riders
+  - Require operators to provide equitable distribution across all neighborhoods
+  - Invest $50M annually per city in protected micromobility infrastructure
+  - Standardize data-sharing requirements between operators and cities
+
+expected:
+  response_contains:
+    - "selection bias"
+    - "pedestrian"
+    - "winter"
+    - "disability"
+    - "equity"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

@@ -1,0 +1,75 @@
+id: tool_calling_012
+name: "Handle pagination until complete"
+category: tool_calling
+description: "Model must call a paginated API tool repeatedly until all pages are retrieved, then aggregate the results"
+difficulty: hard
+
+system_prompt: |
+  You are an audit compliance assistant. When fetching data from paginated APIs,
+  you must retrieve ALL pages of results. Check the "has_more" field in each response—
+  if it is true, call the tool again with the next cursor. Continue until has_more is false.
+  Then provide a complete summary.
+
+user_message: |
+  Get all users with admin role from the identity service and tell me how many there are
+  total, along with their names and last login dates.
+
+tools:
+  - name: list_users
+    description: "List users with optional role filter. Returns paginated results."
+    parameters:
+      type: object
+      properties:
+        role:
+          type: string
+          description: "Filter by role (admin, editor, viewer)"
+        page_size:
+          type: integer
+          description: "Number of results per page (max 3)"
+        cursor:
+          type: string
+          description: "Pagination cursor from previous response. Omit for first page."
+      required: ["role", "page_size"]
+
+mock_tool_responses:
+  list_users:
+    responses:
+      - condition: "cursor is null or empty"
+        response: '{"users": [{"id": "u-001", "name": "Alice Chen", "role": "admin", "last_login": "2025-12-14T09:15:00Z"}, {"id": "u-002", "name": "Bob Martinez", "role": "admin", "last_login": "2025-12-13T22:40:00Z"}, {"id": "u-003", "name": "Carol Okonkwo", "role": "admin", "last_login": "2025-12-14T11:02:00Z"}], "has_more": true, "next_cursor": "cur_page2_xk92m"}'
+      - condition: "cursor == 'cur_page2_xk92m'"
+        response: '{"users": [{"id": "u-004", "name": "David Kim", "role": "admin", "last_login": "2025-12-12T16:33:00Z"}, {"id": "u-005", "name": "Eva Johansson", "role": "admin", "last_login": "2025-12-14T08:50:00Z"}, {"id": "u-006", "name": "Frank Dubois", "role": "admin", "last_login": "2025-12-10T14:20:00Z"}], "has_more": true, "next_cursor": "cur_page3_mn45q"}'
+      - condition: "cursor == 'cur_page3_mn45q'"
+        response: '{"users": [{"id": "u-007", "name": "Grace Nakamura", "role": "admin", "last_login": "2025-12-14T12:00:00Z"}], "has_more": false, "next_cursor": null}'
+
+expected:
+  tool_calls:
+    - name: list_users
+      args:
+        role: "admin"
+        page_size: 3
+    - name: list_users
+      args:
+        role: "admin"
+        page_size: 3
+        cursor: "cur_page2_xk92m"
+    - name: list_users
+      args:
+        role: "admin"
+        page_size: 3
+        cursor: "cur_page3_mn45q"
+  response_contains:
+    - "7"
+    - "Alice Chen"
+    - "Bob Martinez"
+    - "Carol Okonkwo"
+    - "David Kim"
+    - "Eva Johansson"
+    - "Frank Dubois"
+    - "Grace Nakamura"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    correct_params: 0.3
+    response_quality: 0.4

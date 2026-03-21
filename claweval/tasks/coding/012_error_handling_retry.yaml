@@ -1,0 +1,84 @@
+id: coding_012
+name: "Implement error handling and retry logic for an API client"
+category: coding
+description: "Build a robust API client with exponential backoff, circuit breaker, and structured error handling"
+difficulty: hard
+
+system_prompt: |
+  You are an expert Python developer specializing in resilient distributed systems and API client design.
+
+user_message: |
+  Implement a production-grade API client class with comprehensive error handling and retry logic. Here is the skeleton with the existing, broken retry logic that needs to be replaced:
+
+  ```python
+  import httpx
+  import time
+  import random
+  from typing import Optional, Any, Dict
+  from dataclasses import dataclass, field
+  from enum import Enum
+
+  class APIError(Exception):
+      def __init__(self, status_code: int, message: str, retryable: bool = False):
+          self.status_code = status_code
+          self.message = message
+          self.retryable = retryable
+          super().__init__(f"HTTP {status_code}: {message}")
+
+  class CircuitState(Enum):
+      CLOSED = "closed"
+      OPEN = "open"
+      HALF_OPEN = "half_open"
+
+  @dataclass
+  class RetryConfig:
+      max_retries: int = 3
+      base_delay: float = 1.0
+      max_delay: float = 60.0
+      exponential_base: float = 2.0
+      jitter: bool = True
+
+  class APIClient:
+      def __init__(self, base_url: str, api_key: str, retry_config: Optional[RetryConfig] = None):
+          self.base_url = base_url
+          self.api_key = api_key
+          self.retry_config = retry_config or RetryConfig()
+          self.client = httpx.Client(timeout=30.0)
+          # TODO: circuit breaker state
+
+      def request(self, method: str, path: str, **kwargs) -> dict:
+          # Current broken implementation - just retries everything blindly
+          for i in range(3):
+              try:
+                  resp = self.client.request(method, f"{self.base_url}{path}", **kwargs)
+                  return resp.json()
+              except Exception:
+                  time.sleep(1)
+          raise Exception("failed")
+  ```
+
+  Requirements:
+  1. **Exponential backoff with jitter**: delay = min(base_delay * (exponential_base ** attempt) + random_jitter, max_delay)
+  2. **Selective retry**: Only retry on 429, 500, 502, 503, 504 status codes and connection errors. Do NOT retry 400, 401, 403, 404, 422.
+  3. **Circuit breaker pattern**: Track consecutive failures. After 5 consecutive failures, open the circuit for 60 seconds. In half-open state, allow one probe request. On success, close the circuit. On failure, reopen.
+  4. **Structured error hierarchy**: `APIError` base with subclasses `RateLimitError` (429, extract Retry-After header), `ServerError` (5xx), `ClientError` (4xx), `AuthenticationError` (401/403).
+  5. **Request/response logging**: Log method, URL, status code, and latency for every request at DEBUG level. Log retries at WARNING level.
+  6. **Idempotency key header**: Automatically add an `X-Idempotency-Key` header for POST/PUT/PATCH requests.
+  7. **Context manager support**: Implement `__enter__` and `__exit__` to properly close the httpx client.
+  8. **Provide both sync `request()` and async `async_request()` methods.**
+
+  Provide the complete, production-ready implementation.
+
+expected:
+  response_contains:
+    - "exponential"
+    - "CircuitState"
+    - "Retry-After"
+    - "jitter"
+    - "__enter__"
+    - "429"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

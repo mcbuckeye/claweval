@@ -1,0 +1,161 @@
+id: coding_015
+name: "Generate a comprehensive test suite for a class"
+category: coding
+description: "Write a thorough pytest test suite covering edge cases, error paths, and concurrency for a thread-safe LRU cache"
+difficulty: hard
+
+system_prompt: |
+  You are an expert Python test engineer who writes thorough, well-structured test suites with high coverage and meaningful assertions.
+
+user_message: |
+  Write a comprehensive pytest test suite for the following `ThreadSafeLRUCache` class. Aim for 100% branch coverage.
+
+  ```python
+  import threading
+  import time
+  from typing import TypeVar, Generic, Optional, Callable, Hashable
+  from collections import OrderedDict
+  from dataclasses import dataclass
+
+  K = TypeVar("K", bound=Hashable)
+  V = TypeVar("V")
+
+  @dataclass
+  class CacheEntry(Generic[V]):
+      value: V
+      expires_at: Optional[float]
+      access_count: int = 0
+
+  class CacheFullError(Exception):
+      pass
+
+  class ThreadSafeLRUCache(Generic[K, V]):
+      def __init__(self, maxsize: int = 128, ttl: Optional[float] = None, allow_oversize: bool = False):
+          if maxsize <= 0:
+              raise ValueError("maxsize must be positive")
+          self._maxsize = maxsize
+          self._default_ttl = ttl
+          self._allow_oversize = allow_oversize
+          self._cache: OrderedDict[K, CacheEntry[V]] = OrderedDict()
+          self._lock = threading.RLock()
+          self._hits = 0
+          self._misses = 0
+
+      @property
+      def maxsize(self) -> int:
+          return self._maxsize
+
+      def get(self, key: K, default: Optional[V] = None) -> Optional[V]:
+          with self._lock:
+              if key not in self._cache:
+                  self._misses += 1
+                  return default
+              entry = self._cache[key]
+              if entry.expires_at is not None and time.monotonic() > entry.expires_at:
+                  del self._cache[key]
+                  self._misses += 1
+                  return default
+              self._cache.move_to_end(key)
+              entry.access_count += 1
+              self._hits += 1
+              return entry.value
+
+      def put(self, key: K, value: V, ttl: Optional[float] = None) -> None:
+          with self._lock:
+              if key in self._cache:
+                  self._cache.move_to_end(key)
+                  entry = self._cache[key]
+                  entry.value = value
+                  entry.expires_at = time.monotonic() + (ttl or self._default_ttl) if (ttl or self._default_ttl) else None
+                  return
+
+              if len(self._cache) >= self._maxsize:
+                  if not self._allow_oversize:
+                      # Evict LRU
+                      self._cache.popitem(last=False)
+                  else:
+                      raise CacheFullError(f"Cache is full ({self._maxsize} entries)")
+
+              expires_at = None
+              effective_ttl = ttl if ttl is not None else self._default_ttl
+              if effective_ttl is not None:
+                  expires_at = time.monotonic() + effective_ttl
+
+              self._cache[key] = CacheEntry(value=value, expires_at=expires_at)
+
+      def delete(self, key: K) -> bool:
+          with self._lock:
+              if key in self._cache:
+                  del self._cache[key]
+                  return True
+              return False
+
+      def clear(self) -> None:
+          with self._lock:
+              self._cache.clear()
+              self._hits = 0
+              self._misses = 0
+
+      def get_or_set(self, key: K, factory: Callable[[], V], ttl: Optional[float] = None) -> V:
+          value = self.get(key)
+          if value is not None:
+              return value
+          new_value = factory()
+          self.put(key, new_value, ttl=ttl)
+          return new_value
+
+      def stats(self) -> dict:
+          with self._lock:
+              total = self._hits + self._misses
+              return {
+                  "hits": self._hits,
+                  "misses": self._misses,
+                  "hit_rate": self._hits / total if total > 0 else 0.0,
+                  "size": len(self._cache),
+                  "maxsize": self._maxsize,
+              }
+
+      def keys(self) -> list:
+          with self._lock:
+              return list(self._cache.keys())
+
+      def __len__(self) -> int:
+          with self._lock:
+              return len(self._cache)
+
+      def __contains__(self, key: K) -> bool:
+          with self._lock:
+              if key not in self._cache:
+                  return False
+              entry = self._cache[key]
+              if entry.expires_at is not None and time.monotonic() > entry.expires_at:
+                  del self._cache[key]
+                  return False
+              return True
+  ```
+
+  Requirements for the test suite:
+  - Use pytest with fixtures, parametrize, and marks
+  - Test categories: initialization, basic CRUD, TTL expiration, LRU eviction, thread safety, edge cases, stats
+  - Thread safety tests: use concurrent.futures.ThreadPoolExecutor with at least 10 threads doing simultaneous reads/writes
+  - TTL tests: use `time.sleep()` with small TTLs (0.1s) to verify expiration
+  - Edge cases: maxsize=1, put same key twice, delete nonexistent key, get_or_set when factory raises, allow_oversize=True behavior, CacheFullError
+  - Test `__contains__` with expired entries
+  - Test `__len__` accuracy after mixed operations
+  - Test that LRU order is correct after gets (accessed items should not be evicted)
+  - Verify stats accuracy across all operations
+  - At least 25 test functions
+
+expected:
+  response_contains:
+    - "pytest"
+    - "ThreadPoolExecutor"
+    - "time.sleep"
+    - "CacheFullError"
+    - "parametrize"
+    - "fixture"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

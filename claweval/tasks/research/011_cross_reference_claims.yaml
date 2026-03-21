@@ -1,0 +1,37 @@
+id: research_011
+name: "Cross-reference claims across documents"
+category: research
+description: "Cross-reference claims across 4 documents to identify consistencies, contradictions, and unsupported assertions"
+difficulty: hard
+
+system_prompt: |
+  You are a fact-checking analyst. Cross-reference claims across multiple documents, identifying where sources agree, contradict, or make unsupported assertions. Be precise about which documents support or contradict each claim.
+
+user_message: |
+  Cross-reference the factual claims across these 4 documents about the 2024 Sapphire Valley wildfire. Identify: (1) claims supported by multiple sources, (2) direct contradictions between sources, (3) claims made by only one source with no corroboration, and (4) any factual errors you can detect from internal inconsistencies.
+
+  DOCUMENT 1 — Official Fire Agency Report (CalFire):
+  "The Sapphire Valley Fire ignited on August 14, 2024, at approximately 2:15 PM local time near the intersection of Highway 138 and Crest Road. The cause has been determined to be a downed power line owned by Pacific Grid Energy. The fire burned 34,720 acres over 18 days before full containment on September 1. Structures destroyed: 312 residential, 47 commercial. Fatalities: 3 (two civilians, one firefighter). Peak firefighting personnel deployed: 4,200. Estimated suppression costs: $187 million. Wind conditions at ignition: sustained 45 mph with gusts to 68 mph from the northeast (Santa Ana winds). Relative humidity at ignition: 8%."
+
+  DOCUMENT 2 — Pacific Grid Energy Public Statement:
+  "Pacific Grid Energy acknowledges that its infrastructure was in the vicinity of the Sapphire Valley Fire's origin point. However, our internal investigation indicates the fire began at approximately 1:45 PM on August 14, a full 30 minutes before the power line failure was recorded in our systems at 2:14 PM. We believe the fire damaged our line, not the reverse. Our equipment in the area had passed inspection in March 2024. We note that CalFire's investigation did not consider the homeless encampment located 200 yards from the origin point, which multiple witnesses reported seeing an active campfire at earlier that day. Total acreage burned was approximately 32,000 acres per satellite analysis."
+
+  DOCUMENT 3 — Local Newspaper Investigation (Sapphire Valley Gazette):
+  "The Sapphire Valley Fire started on August 14 at around 2:15 PM. Our investigation confirms the downed power line as the cause, corroborated by three independent witnesses who saw sparks from the line before any fire was visible. Pacific Grid Energy's claim about a pre-existing fire is contradicted by a timestamped security camera at the nearby Hilltop Gas Station, which shows no smoke in the area at 1:50 PM. The fire destroyed 287 homes and 52 commercial buildings, with 2 civilian deaths and 1 firefighter death. Total acreage: 34,500 acres over 18 days. We also found that PGE's inspection records from March 2024 flagged 'deferred maintenance' on 3 transmission towers within 1 mile of the ignition point — a detail PGE omitted from their public statement."
+
+  DOCUMENT 4 — Insurance Industry Assessment (Western States Insurance Consortium):
+  "Our assessment of the Sapphire Valley Fire (August 14 - September 1, 2024) documents 298 residential structures destroyed, 47 commercial structures destroyed, and an additional 156 structures with significant damage. Three fatalities are confirmed. Total insured losses are estimated at $1.2 billion. The fire consumed approximately 35,100 acres. Our forensic analysis supports the downed power line as the ignition source, consistent with the CalFire determination. We note the area was classified as a Tier 3 extreme fire risk zone, and Pacific Grid Energy had been warned in 2022 and 2023 about the need to underground power lines in this corridor."
+
+expected:
+  response_contains:
+    - "contradiction"
+    - "power line"
+    - "acreage"
+    - "residential"
+    - "timeline"
+    - "corroborate"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

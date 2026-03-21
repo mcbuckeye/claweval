@@ -1,0 +1,42 @@
+id: reasoning_011
+name: "Legal reasoning"
+category: reasoning
+description: "Apply 3 legal rules to a fact pattern and determine liability"
+difficulty: hard
+
+system_prompt: |
+  You are a legal reasoning assistant. Apply each rule precisely to the facts. A party is liable only if ALL conditions of a rule are met. Determine which parties are liable and under which rules.
+
+user_message: |
+  Consider these three rules of a hypothetical Data Protection Code:
+
+  Rule 1 (Data Breach Liability): A data controller is liable if (a) personal data was exposed to unauthorized parties, AND (b) the controller failed to implement encryption for data at rest, AND (c) the breach affected more than 100 individuals.
+
+  Rule 2 (Processor Negligence): A data processor is independently liable if (a) it deviated from the controller's documented processing instructions, AND (b) the deviation was a proximate cause of the breach.
+
+  Rule 3 (Shared Liability Reduction): If both controller and processor are liable under Rules 1 and 2 respectively, the controller's penalty is reduced by 40% IF the controller can demonstrate it conducted a security audit of the processor within the past 12 months.
+
+  Fact Pattern:
+  - MegaCorp (controller) hired DataFast (processor) to handle customer records.
+  - MegaCorp's written instructions specified: "All data must be stored in EU-region servers with AES-256 encryption."
+  - DataFast moved 12,000 records to a US-region server without encryption to reduce latency, without MegaCorp's approval.
+  - A hacker exploited the unencrypted US server and accessed all 12,000 records.
+  - MegaCorp's own EU servers used AES-256 encryption as specified.
+  - MegaCorp conducted a security audit of DataFast 8 months before the breach.
+  - The standard penalty under Rule 1 is $500,000.
+
+  Questions:
+  1. Is MegaCorp liable under Rule 1? Analyze each condition.
+  2. Is DataFast liable under Rule 2? Analyze each condition.
+  3. Does Rule 3 apply? If so, what is MegaCorp's final penalty amount?
+
+expected:
+  response_contains:
+    - "MegaCorp"
+    - "liable"
+    - "300,000"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

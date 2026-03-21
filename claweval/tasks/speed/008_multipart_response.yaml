@@ -1,0 +1,30 @@
+id: speed_008
+name: "Multi-part structured response"
+category: speed
+description: "Generate a long multi-section response with introduction, analysis, and conclusion — measures throughput across structured long output"
+difficulty: hard
+
+system_prompt: |
+  You are a senior technology analyst. Write detailed, well-reasoned analysis with clear section structure. Use headers to separate sections.
+
+user_message: |
+  Write a comprehensive three-part analysis of the impact of WebAssembly (Wasm) on modern software development.
+
+  Part 1 — Introduction (at least 200 words): Define WebAssembly, explain its origin and design goals, and outline why it matters beyond the browser.
+
+  Part 2 — Detailed Analysis (at least 500 words): Cover at least four specific use cases (e.g., browser applications, edge computing, serverless functions, plugin systems). For each use case, discuss the technical advantages of Wasm, current limitations, and at least one real-world example or project. Compare Wasm's performance model to JavaScript and native code where relevant.
+
+  Part 3 — Conclusion (at least 200 words): Summarize the trajectory of WebAssembly adoption, identify the biggest remaining challenges (tooling, debugging, garbage collection), and make a forward-looking prediction for the next 3–5 years.
+
+expected:
+  response_contains:
+    - "Introduction"
+    - "Analysis"
+    - "Conclusion"
+    - "WebAssembly"
+    - "edge computing"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

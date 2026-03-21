@@ -1,0 +1,59 @@
+id: writing_015
+name: "Multi-audience message adaptation"
+category: writing
+description: "Adapt a single technical event into messages for 4 distinct audiences: CEO, engineer, customer, press"
+difficulty: hard
+
+system_prompt: |
+  You are a communications strategist who tailors messaging for different stakeholders, adjusting tone, detail level, and framing while maintaining factual consistency.
+
+user_message: |
+  A significant technical event has occurred and you need to write communications for 4 different audiences. Here is the raw internal incident summary:
+
+  --- INCIDENT SUMMARY ---
+  On March 15, 2026, our ML-powered recommendation engine (RecSys v4) experienced a critical failure that caused incorrect product recommendations for approximately 8 hours (06:00-14:00 UTC). The root cause was a corrupted model artifact deployed by our automated ML pipeline. Specifically, a feature encoding mismatch between the training pipeline (which was updated to v2 schema) and the serving pipeline (still on v1 schema) caused the model to misinterpret user preference signals. As a result, users received recommendations with very low relevance — in some cases, the system recommended products from entirely wrong categories (e.g., showing industrial equipment to consumer fashion shoppers). The issue affected approximately 3.2 million users and resulted in a 34% drop in recommendation click-through rate and an estimated $890,000 in lost revenue during the affected period. However, no incorrect charges were made, no personal data was exposed, and the core e-commerce functionality (search, cart, checkout) was unaffected. The fix involved rolling back the serving model to RecSys v3 and implementing a schema version compatibility check in the deployment pipeline. Long-term fix: the team will implement shadow deployment testing where new models serve traffic in parallel without affecting live results.
+  --- END SUMMARY ---
+
+  Write ALL FOUR of the following communications:
+
+  1. **CEO Briefing** (150 words max)
+     - Focus on business impact (revenue, users affected) and resolution
+     - Include what's being done to prevent recurrence
+     - No technical jargon — translate everything to business terms
+     - Tone: direct, confident, solution-oriented
+
+  2. **Engineering Post-Mortem Audience** (300 words max)
+     - Full technical detail: what broke, why, how it was detected, how it was fixed
+     - Include the root cause (feature encoding schema mismatch)
+     - Describe both the immediate fix (rollback) and the long-term fix (shadow deployment)
+     - Include action items with owners (make up plausible names/teams)
+     - Tone: blameless, analytical, focused on systemic improvements
+
+  3. **Customer Notification** (200 words max)
+     - Acknowledge the issue without unnecessary technical detail
+     - Emphasize what was NOT affected (payments, personal data, core shopping)
+     - Apologize and describe what customers experienced
+     - Offer a concrete goodwill gesture (e.g., 15% discount code RECFIX15)
+     - Tone: empathetic, transparent, appreciative
+
+  4. **Press Statement** (150 words max)
+     - Formal, third-person voice ("CloudShop today confirmed...")
+     - Minimize without being dishonest — frame accurately but with corporate composure
+     - Emphasize rapid resolution and no data/payment impact
+     - Include a spokesperson quote
+     - Tone: professional, measured, factual
+
+  Critical requirement: All four messages must be factually consistent — same numbers, same timeline, same scope. The framing and detail level should differ, but no version should contradict another.
+
+expected:
+  response_contains:
+    - "3.2 million"
+    - "recommendation"
+    - "rollback"
+    - "shadow"
+    - "personal data"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

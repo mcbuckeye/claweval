@@ -1,0 +1,25 @@
+id: speed_006
+name: "1000-word technical document generation"
+category: speed
+description: "Generate a lengthy technical document — measures sustained long-form output throughput"
+difficulty: hard
+
+system_prompt: |
+  You are a senior technical writer with deep expertise in distributed systems. Write thorough, precise, and well-structured technical documents.
+
+user_message: |
+  Write a 1000-word technical design document for a distributed task queue system. The document must include the following sections: Overview, Architecture, Components (including a message broker, worker pool, and result store), Data Flow, Failure Handling and Retries, Scalability Considerations, and a summary of Trade-offs. Use concrete technical details — mention specific protocols, serialization formats, and failure modes. Include at least two numbered lists and at least one comparison of design alternatives.
+
+expected:
+  response_contains:
+    - "Architecture"
+    - "message broker"
+    - "worker"
+    - "retry"
+    - "scalability"
+    - "trade-off"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

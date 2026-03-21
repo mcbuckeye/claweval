@@ -1,0 +1,37 @@
+id: speed_015
+name: "API response examples for 5 endpoints"
+category: speed
+description: "Generate detailed API documentation with request/response examples for 5 endpoints — measures structured technical output throughput"
+difficulty: hard
+
+system_prompt: |
+  You are a senior API documentation engineer. Write complete, precise API documentation with realistic request and response examples. Use proper HTTP conventions and include all relevant headers, status codes, and edge cases.
+
+user_message: |
+  Write complete API documentation with request/response examples for a fictional e-commerce Order Management API. Document the following 5 endpoints with FULL detail:
+
+  1. **POST /api/v1/orders** — Create a new order. Show the request body (with items array, shipping address, payment method, coupon code), all required headers (Authorization, Content-Type, Idempotency-Key), the 201 success response (with order ID, status, estimated delivery, line item totals, tax, shipping cost, and grand total), and error responses for 400 (validation error with field-level details), 401 (unauthorized), and 409 (duplicate idempotency key).
+
+  2. **GET /api/v1/orders/{order_id}** — Retrieve a single order. Show the full response including nested objects for items (with product details, quantity, unit price, subtotal), shipping address, billing address, payment summary, status history (array of status changes with timestamps), and tracking information. Include a 404 error response.
+
+  3. **PATCH /api/v1/orders/{order_id}** — Update an order (only if status is "pending"). Show request body for updating shipping address and adding a coupon. Include 200 success, 400 (invalid transition), 404 (not found), and 409 (conflict — order already shipped) responses.
+
+  4. **POST /api/v1/orders/{order_id}/cancel** — Cancel an order with a required cancellation reason. Show 200 success (with refund details), 400 (order not cancellable), and 404 responses.
+
+  5. **GET /api/v1/orders** — List orders with pagination, filtering (by status, date range, minimum total), and sorting. Show request with query parameters, the paginated response with metadata (total_count, page, per_page, next_cursor), and a 400 response for invalid filter parameters.
+
+  For each endpoint, include: HTTP method and path, description, request headers, request body (if applicable) as JSON, at least one success response as JSON, and at least two error responses as JSON. Use realistic e-commerce data in all examples.
+
+expected:
+  response_contains:
+    - "POST /api/v1/orders"
+    - "GET /api/v1/orders"
+    - "PATCH"
+    - "cancel"
+    - "pagination"
+    - "Idempotency-Key"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

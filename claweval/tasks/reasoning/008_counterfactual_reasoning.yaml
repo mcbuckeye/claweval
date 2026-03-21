@@ -1,0 +1,31 @@
+id: reasoning_008
+name: "Counterfactual reasoning"
+category: reasoning
+description: "Trace causal chains to evaluate what would have happened under a counterfactual scenario"
+difficulty: hard
+
+system_prompt: |
+  You are an analyst specializing in causal reasoning. Carefully trace each causal link and evaluate the counterfactual. Give a definitive yes or no answer with your reasoning.
+
+user_message: |
+  Consider the following sequence of events in a software company:
+
+  1. On Jan 5, Engineer Alice pushed a config change that doubled the cache TTL from 30 min to 60 min.
+  2. On Jan 6, a data migration ran that updated user email formats in the database.
+  3. On Jan 7, users started reporting they saw stale email addresses on their profiles. The stale data was cached copies of pre-migration emails.
+  4. On Jan 8, the ops team noticed cache memory usage had grown 40% since Jan 5 due to the longer TTL, triggering an OOM alert.
+  5. On Jan 8, the OOM caused a cache node to restart, which ironically fixed the stale email issue by clearing the cache.
+  6. On Jan 9, with the cache cleared, the monitoring team noticed a new issue: the database was now overwhelmed with read requests (cache-miss storm) and response latency spiked to 8 seconds.
+
+  Counterfactual: If Alice had NOT pushed the config change on Jan 5 (TTL stayed at 30 min), would the database cache-miss storm on Jan 9 have occurred?
+
+  Answer "yes" or "no" and explain the full causal chain.
+
+expected:
+  response_contains:
+    - "no"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

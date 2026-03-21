@@ -1,0 +1,67 @@
+id: coding_008
+name: "Implement a caching decorator with TTL and LRU eviction"
+category: coding
+description: "Build a production-grade caching decorator supporting TTL expiration and LRU eviction"
+difficulty: hard
+
+system_prompt: |
+  You are an expert Python developer with deep knowledge of decorators, data structures, and caching strategies.
+
+user_message: |
+  Implement a `@cached` decorator with the following requirements:
+
+  1. **TTL (Time-To-Live)**: Each cached entry expires after `ttl` seconds (float). Expired entries should be lazily evicted on access and proactively during eviction.
+  2. **Max size with LRU eviction**: When the cache reaches `maxsize` entries, evict the least-recently-used entry. Accessing a cached value should update its recency.
+  3. **Key generation**: Cache key is derived from all positional and keyword arguments. Must correctly handle unhashable arguments by falling back to a string representation.
+  4. **Thread safety**: All cache operations must be thread-safe using `threading.Lock`.
+  5. **Cache info**: The decorated function should have a `.cache_info()` method returning a named tuple with `hits`, `misses`, `maxsize`, `currsize`.
+  6. **Cache clear**: The decorated function should have a `.cache_clear()` method that resets everything.
+  7. **Works with both sync and async functions**.
+
+  Here is the skeleton you must complete:
+
+  ```python
+  import time
+  import threading
+  import functools
+  import asyncio
+  from collections import OrderedDict, namedtuple
+
+  CacheInfo = namedtuple("CacheInfo", ["hits", "misses", "maxsize", "currsize"])
+
+  def cached(maxsize: int = 128, ttl: float = 60.0):
+      """A caching decorator with TTL expiration and LRU eviction."""
+      def decorator(func):
+          # YOUR IMPLEMENTATION HERE
+          pass
+      return decorator
+  ```
+
+  Example usage:
+  ```python
+  @cached(maxsize=100, ttl=30.0)
+  def expensive_query(user_id: int, include_deleted: bool = False) -> dict:
+      # slow database call
+      ...
+
+  @cached(maxsize=50, ttl=10.0)
+  async def fetch_api(url: str) -> dict:
+      # async HTTP call
+      ...
+  ```
+
+  Provide the complete implementation. Include a `__wrapped__` attribute pointing to the original function. Ensure that `OrderedDict.move_to_end` is used for O(1) LRU updates. Include docstrings.
+
+expected:
+  response_contains:
+    - "OrderedDict"
+    - "threading.Lock"
+    - "move_to_end"
+    - "cache_info"
+    - "cache_clear"
+    - "ttl"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

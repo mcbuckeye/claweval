@@ -1,0 +1,213 @@
+id: tool_calling_008
+name: "Correct tool selection from 15 ambiguous options"
+category: tool_calling
+description: "Model must select the single correct tool from 15 available tools with overlapping names and descriptions"
+difficulty: hard
+
+system_prompt: |
+  You are a system administration assistant. You have access to many tools.
+  Choose the most appropriate tool for the user's request. Pay close attention
+  to tool descriptions and parameter schemas to pick the right one.
+
+user_message: |
+  Check the real-time memory usage of the process with PID 4892 on host web-prod-03, including per-thread breakdown.
+
+tools:
+  - name: get_system_metrics
+    description: "Get high-level system metrics (CPU, disk, network) for a host"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        metric_type:
+          type: string
+          enum: ["cpu", "disk", "network"]
+      required: ["host", "metric_type"]
+
+  - name: get_memory_stats
+    description: "Get aggregate memory statistics for an entire host (total, used, free, cached)"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+      required: ["host"]
+
+  - name: get_process_list
+    description: "List all running processes on a host sorted by resource usage"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        sort_by:
+          type: string
+          enum: ["cpu", "memory", "pid"]
+      required: ["host"]
+
+  - name: inspect_process_memory
+    description: "Get detailed real-time memory usage for a specific process including per-thread memory breakdown"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+          description: "Target hostname"
+        pid:
+          type: integer
+          description: "Process ID to inspect"
+        include_threads:
+          type: boolean
+          description: "Include per-thread memory breakdown"
+      required: ["host", "pid", "include_threads"]
+
+  - name: check_memory_alerts
+    description: "Check if any memory threshold alerts are active for a host"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+      required: ["host"]
+
+  - name: get_memory_history
+    description: "Get historical memory usage data for a host over a time range"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        hours:
+          type: integer
+      required: ["host", "hours"]
+
+  - name: kill_process
+    description: "Terminate a process by PID on a given host"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        pid:
+          type: integer
+        signal:
+          type: string
+          enum: ["SIGTERM", "SIGKILL"]
+      required: ["host", "pid", "signal"]
+
+  - name: get_process_info
+    description: "Get general metadata about a process (name, user, start time, command line) but not resource usage"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        pid:
+          type: integer
+      required: ["host", "pid"]
+
+  - name: get_heap_dump
+    description: "Capture a JVM heap dump for a Java process (requires JVM process)"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        pid:
+          type: integer
+        output_path:
+          type: string
+      required: ["host", "pid", "output_path"]
+
+  - name: monitor_process_cpu
+    description: "Get real-time CPU usage for a specific process including per-thread CPU breakdown"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        pid:
+          type: integer
+        include_threads:
+          type: boolean
+      required: ["host", "pid", "include_threads"]
+
+  - name: get_container_memory
+    description: "Get memory usage for a Docker container by container ID"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        container_id:
+          type: string
+      required: ["host", "container_id"]
+
+  - name: analyze_memory_leak
+    description: "Run a memory leak analysis over time for a process (takes 5+ minutes)"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        pid:
+          type: integer
+        duration_minutes:
+          type: integer
+      required: ["host", "pid", "duration_minutes"]
+
+  - name: get_swap_usage
+    description: "Get swap memory usage details for a host"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+      required: ["host"]
+
+  - name: get_oom_events
+    description: "List recent out-of-memory killer events on a host"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        hours:
+          type: integer
+      required: ["host", "hours"]
+
+  - name: restart_process
+    description: "Restart a managed process via systemd on a host"
+    parameters:
+      type: object
+      properties:
+        host:
+          type: string
+        service_name:
+          type: string
+      required: ["host", "service_name"]
+
+mock_tool_responses:
+  inspect_process_memory:
+    response: '{"pid": 4892, "process_name": "node", "host": "web-prod-03", "rss_mb": 512.4, "vms_mb": 1024.8, "shared_mb": 64.2, "heap_mb": 384.1, "threads": [{"tid": 4893, "name": "main", "rss_mb": 256.2}, {"tid": 4894, "name": "worker-1", "rss_mb": 128.1}, {"tid": 4895, "name": "worker-2", "rss_mb": 96.8}, {"tid": 4896, "name": "gc", "rss_mb": 31.3}]}'
+
+expected:
+  tool_calls:
+    - name: inspect_process_memory
+      args:
+        host: "web-prod-03"
+        pid: 4892
+        include_threads: true
+  response_contains:
+    - "512"
+    - "thread"
+    - "main"
+    - "worker"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    correct_params: 0.3
+    response_quality: 0.4

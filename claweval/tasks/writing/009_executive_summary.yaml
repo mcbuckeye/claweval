@@ -1,0 +1,62 @@
+id: writing_009
+name: "Verbose report to executive summary"
+category: writing
+description: "Condense a 2000-word verbose report into a 200-word executive summary"
+difficulty: hard
+
+system_prompt: |
+  You are an expert business writer who distills lengthy reports into concise, actionable executive summaries.
+
+user_message: |
+  Condense the following verbose report into a 200-word executive summary. The summary must capture the key findings, critical numbers, and recommended actions. Do NOT exceed 200 words.
+
+  --- BEGIN REPORT ---
+
+  Annual Infrastructure Reliability and Cost Optimization Report — Fiscal Year 2025
+
+  Section 1: Introduction and Scope
+
+  This report presents the findings of a comprehensive analysis conducted over the course of the fiscal year 2025, spanning from January 1, 2025 through December 31, 2025. The analysis was undertaken by the Site Reliability Engineering team in collaboration with the Cloud Infrastructure team and the Finance department. The scope of this report encompasses all production infrastructure across three cloud providers (AWS, Google Cloud Platform, and Microsoft Azure), four geographic regions (US-East, US-West, EU-West, and AP-Southeast), and covers a total of 847 microservices running across 12,400 container instances managed by Kubernetes clusters. The purpose of this report is to provide leadership with a clear picture of our infrastructure reliability posture, cost trajectory, and recommendations for the coming fiscal year.
+
+  Section 2: Reliability Metrics and Incident Analysis
+
+  Over the course of FY2025, our overall platform availability was measured at 99.94%, which represents a meaningful improvement over the FY2024 figure of 99.87%. This improvement is particularly noteworthy given that our traffic volume increased by approximately 340% year-over-year due to the successful launch of our enterprise product tier and the expansion into the Asia-Pacific market. The total number of severity-1 incidents decreased from 23 in FY2024 to 11 in FY2025, representing a 52% reduction. Mean time to detection (MTTD) improved from 8.3 minutes to 3.1 minutes, largely attributable to the deployment of our new anomaly detection system based on machine learning models trained on historical incident data. Mean time to resolution (MTTR) improved from 47 minutes to 28 minutes, a 40% improvement driven by enhanced runbooks and automated remediation playbooks. However, it is important to note that 4 of the 11 sev-1 incidents were related to a single root cause: cascading failures in our service mesh layer caused by misconfigured circuit breakers in the Istio configuration. This recurring issue accounted for approximately 73% of total customer-impacting downtime minutes during FY2025.
+
+  Section 3: Cost Analysis and Trends
+
+  Total infrastructure spend for FY2025 was $14.2 million, representing a 28% increase over FY2024's spend of $11.1 million. However, when normalized against traffic volume (which grew 340%), our cost-per-request decreased by 67%, from $0.0042 to $0.0014. The breakdown by provider is as follows: AWS accounted for $8.7 million (61% of total spend), GCP accounted for $3.8 million (27%), and Azure accounted for $1.7 million (12%). The most significant cost driver was compute, representing 58% of total spend at $8.2 million. Storage costs were $2.8 million (20%), networking and data transfer costs were $2.1 million (15%), and managed services (databases, caches, queues) accounted for $1.1 million (8%). Our reserved instance and committed use discount coverage was only 34%, well below the industry benchmark of 60-70%. We estimate that increasing coverage to 65% would yield annual savings of approximately $2.3 million. Additionally, our analysis identified $1.8 million in waste from oversized instances, orphaned resources, and unused storage volumes. The finance team has flagged that our current growth trajectory, if unoptimized, would push infrastructure costs to $21 million in FY2026.
+
+  Section 4: Capacity Planning and Scaling
+
+  Current peak utilization across our Kubernetes clusters averages 61% of provisioned capacity, with significant variation by region. US-East runs at 78% peak utilization and has triggered autoscaling events 147 times in Q4 alone, indicating that it is approaching capacity limits. US-West runs at 52%, EU-West at 45%, and AP-Southeast at 39%. The AP-Southeast region was provisioned in Q2 with significant headroom to accommodate projected growth in that market, so the lower utilization is expected and within plan. Our database tier is a more pressing concern: the primary PostgreSQL cluster is at 71% storage capacity and growing at approximately 8% per month. At this rate, we will exceed provisioned storage within 4 months without intervention. The team has evaluated three options: vertical scaling (larger instances), horizontal sharding, and archival of historical data older than 18 months. We recommend a combination of data archival (which would reclaim approximately 40% of current storage) and horizontal sharding for the highest-growth tables.
+
+  Section 5: Security and Compliance
+
+  All production systems maintained SOC 2 Type II and ISO 27001 compliance throughout FY2025. Zero data breaches were recorded. However, our vulnerability scanning identified 847 CVEs across our container images during the year, of which 23 were rated critical. Average time to patch critical CVEs was 4.2 days, which is within our SLA of 7 days but above our internal target of 2 days. We have implemented automated image rebuilds triggered by CVE detection, which is expected to reduce patching time to under 24 hours in FY2026.
+
+  Section 6: Recommendations
+
+  Based on the findings outlined in this report, we recommend the following actions for FY2026: (1) Remediate the Istio service mesh circuit breaker configuration as the highest priority item, as it was responsible for the majority of customer-impacting downtime. (2) Increase reserved instance and committed use discount coverage from 34% to 65%, targeting $2.3 million in annual savings. (3) Execute a resource right-sizing initiative to eliminate the identified $1.8 million in infrastructure waste. (4) Implement database archival strategy and begin horizontal sharding planning for high-growth tables before the storage capacity cliff in approximately 4 months. (5) Invest in automated CVE patching pipeline to meet the 24-hour remediation target. (6) Begin capacity planning for US-East region expansion given that it is approaching scaling limits. The estimated total investment required for these initiatives is $1.2 million, with projected annual savings and cost avoidance of $4.1 million.
+
+  --- END REPORT ---
+
+  Requirements:
+  - Exactly 200 words or fewer
+  - Must include the key financial figures ($14.2M spend, $2.3M potential savings, $1.8M waste)
+  - Must mention the 99.94% availability and the Istio issue as the main reliability concern
+  - Must include the top 3 recommendations prioritized by impact
+  - Must mention the database storage urgency (4-month timeline)
+  - Write in crisp, direct executive language — no filler phrases
+
+expected:
+  response_contains:
+    - "14.2"
+    - "99.94"
+    - "Istio"
+    - "2.3"
+    - "sharding"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

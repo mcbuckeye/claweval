@@ -1,0 +1,36 @@
+id: research_006
+name: "Synthesize conflicting sources"
+category: research
+description: "Synthesize conflicting sources on a topic into a balanced, nuanced summary"
+difficulty: hard
+
+system_prompt: |
+  You are a research analyst specializing in synthesizing contradictory information into balanced summaries. You must acknowledge all perspectives, identify areas of agreement and disagreement, and avoid favoring one source over another without justification.
+
+user_message: |
+  Below are four sources discussing the impact of remote work on productivity. Synthesize these into a balanced summary that captures the key agreements, disagreements, and nuances.
+
+  SOURCE A (Stanford Research Brief, 2024):
+  "Our longitudinal study of 2,400 employees across 18 companies found that fully remote workers showed a 13% increase in productivity as measured by output per hour. However, we observed a 17% decline in collaborative innovation metrics, defined as cross-team project contributions and patent co-authorships. The net effect on organizational performance was marginally positive (+4%) for routine task-heavy roles but negative (-9%) for roles requiring significant cross-functional collaboration. Notably, hybrid workers (3 days office, 2 days remote) showed the best overall outcomes: +8% individual productivity with only a 5% decline in collaborative innovation."
+
+  SOURCE B (McKinley Global Workforce Report, 2024):
+  "Analysis of 540 enterprises reveals that remote work has been a net negative for productivity when measured holistically. While individual task completion rates rose 7-11%, the hidden costs are substantial: project cycle times increased by 22%, onboarding time for new employees grew by 35%, and knowledge transfer efficiency dropped by 29%. Organizations that returned to full in-office mandates saw a 15% improvement in project delivery speed within 6 months. We estimate the total cost of remote work to be $8,700 per employee per year in lost organizational efficiency."
+
+  SOURCE C (Buffer State of Remote Work Survey, 2024):
+  "In our survey of 12,000 remote workers across 30 countries, 91% reported being equally or more productive at home. Key benefits cited: reduced commute stress (78%), fewer interruptions (65%), better work-life balance (72%). However, 38% reported difficulty with collaboration, 27% experienced loneliness, and 22% struggled with work-life boundaries. Critically, 67% said they would accept a 5-10% pay cut to maintain remote work flexibility, suggesting strong worker preference regardless of measured productivity."
+
+  SOURCE D (Nature Human Behaviour Meta-Analysis, 2024):
+  "Our meta-analysis of 94 peer-reviewed studies (total N=287,000) reveals significant methodological problems in remote work productivity research. Studies using self-reported productivity measures show effects 3.2x larger than those using objective measures. Publication bias inflates positive findings by approximately 40%. When correcting for these biases, the true effect of remote work on individual productivity is near zero (d=0.04, 95% CI [-0.02, 0.10]). We find strong moderating effects of job type, management quality, and home office conditions, suggesting the question 'is remote work productive?' is ill-posed without specifying context."
+
+expected:
+  response_contains:
+    - "hybrid"
+    - "collaboration"
+    - "self-reported"
+    - "methodological"
+    - "context"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

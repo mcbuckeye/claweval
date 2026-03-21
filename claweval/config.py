@@ -19,6 +19,7 @@ class ModelConfig:
     provider: str = ""
     base_url: str = ""
     api_key: str = ""
+    ram_gb: float = 0.0
 
     def client_kwargs(self) -> dict[str, Any]:
         """Return kwargs for openai.OpenAI() constructor."""
@@ -33,6 +34,8 @@ class Settings:
     """Global run settings."""
 
     judge_model: str = ""
+    judge_api_key_env: str = "ANTHROPIC_API_KEY"
+    scoring_mode: str = "deterministic"  # "deterministic", "judge", or "hybrid"
     parallel_tasks: int = 1
     timeout_seconds: int = 300
     warmup_requests: int = 2
@@ -89,11 +92,14 @@ def load_config(path: str | Path) -> EvalConfig:
                 provider=provider_name,
                 base_url=base_url,
                 api_key=api_key,
+                ram_gb=float(m.get("ram_gb", 0)),
             ))
 
     raw_settings = raw.get("settings", {})
     settings = Settings(
         judge_model=raw_settings.get("judge_model", ""),
+        judge_api_key_env=raw_settings.get("judge_api_key_env", "ANTHROPIC_API_KEY"),
+        scoring_mode=raw_settings.get("scoring_mode", "deterministic"),
         parallel_tasks=raw_settings.get("parallel_tasks", 1),
         timeout_seconds=raw_settings.get("timeout_seconds", 300),
         warmup_requests=raw_settings.get("warmup_requests", 2),

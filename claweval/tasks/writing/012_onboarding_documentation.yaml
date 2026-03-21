@@ -1,0 +1,49 @@
+id: writing_012
+name: "Complex system onboarding documentation"
+category: writing
+description: "Write onboarding documentation for a complex distributed system"
+difficulty: hard
+
+system_prompt: |
+  You are a staff engineer who writes onboarding documentation that enables new team members to become productive quickly on complex systems.
+
+user_message: |
+  Write onboarding documentation for new engineers joining the "Payments Platform" team. This is an internal document that should take a new hire from zero to productive. Here is the system context:
+
+  System Overview:
+  - The payments platform processes $2.3B annually across 47 countries
+  - It handles credit cards (Stripe), bank transfers (Plaid), crypto (internal), and invoicing
+  - Architecture: 8 microservices communicating via Kafka event streams and gRPC
+  - Core services: PaymentGateway, FraudEngine, LedgerService, ReconciliationWorker, WebhookDispatcher, CurrencyExchange, ComplianceChecker, MerchantAPI
+  - Data stores: PostgreSQL (ledger of record), Redis (rate limiting, caching), Elasticsearch (audit logs), S3 (receipt storage)
+  - Deployed on Kubernetes (EKS) across us-east-1 and eu-west-1 with active-active configuration
+
+  Key Complexities:
+  - Double-entry bookkeeping in LedgerService — every transaction creates balanced debit/credit entries
+  - PCI DSS Level 1 compliance — card data never touches our systems; tokenized via Stripe
+  - Eventual consistency between services — the FraudEngine may approve a payment that the ComplianceChecker later blocks
+  - Idempotency is critical — every endpoint must handle duplicate requests safely using idempotency keys
+  - Currency conversion happens at capture time, not authorization time
+  - Reconciliation runs daily at 02:00 UTC and compares our ledger against provider settlement files
+
+  The documentation must include ALL of these sections:
+  1. **Architecture Overview** — A written description of how the 8 services interact (describe the flow of a payment from initiation to settlement)
+  2. **Local Development Setup** — Step-by-step instructions to get the system running locally (Docker Compose, required env vars, seed data, how to simulate a test payment)
+  3. **Key Concepts** — Explain double-entry bookkeeping, idempotency, eventual consistency, and PCI compliance as they apply to this system
+  4. **Common Tasks** — How to: add a new payment provider, modify fraud rules, debug a failed payment, trace a transaction across services
+  5. **Runbooks** — What to do when: reconciliation fails, a payment is stuck in "pending," the Kafka consumer lag exceeds 10,000, a merchant reports missing webhooks
+  6. **Gotchas and Tribal Knowledge** — At least 5 non-obvious things that would otherwise take weeks to learn (e.g., "Never deploy LedgerService and ReconciliationWorker simultaneously")
+
+expected:
+  response_contains:
+    - "idempotency"
+    - "double-entry"
+    - "Kafka"
+    - "PCI"
+    - "reconciliation"
+    - "Docker"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

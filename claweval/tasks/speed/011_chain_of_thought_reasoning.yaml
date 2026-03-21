@@ -1,0 +1,34 @@
+id: speed_011
+name: "Long-form chain-of-thought reasoning"
+category: speed
+description: "Produce extended step-by-step reasoning for a complex problem — measures throughput of verbose reasoning output"
+difficulty: hard
+
+system_prompt: |
+  You are an expert problem solver. Show all of your reasoning explicitly. Use numbered steps and clearly label each phase of your thinking: Understanding, Planning, Execution, and Verification. Be thorough — do not skip steps or abbreviate your reasoning.
+
+user_message: |
+  Solve the following system design problem with full visible chain-of-thought reasoning. Show every step of your thinking process.
+
+  Problem: Design a URL shortening service (like bit.ly) that must handle 100 million new URLs per day, serve 10 billion redirects per day, store URLs for up to 10 years, and provide analytics (click count, geographic distribution, referrer tracking) with sub-second query latency.
+
+  Your reasoning must include all of the following phases:
+
+  1. **Understanding**: Restate the requirements and compute the key numerical constraints (storage estimates, QPS calculations, bandwidth estimates).
+  2. **Planning**: Evaluate at least three alternative approaches for the URL encoding scheme (e.g., hashing, sequential ID with base62, pre-generated keys). Discuss trade-offs of each.
+  3. **Execution**: Lay out the full architecture including the API layer, encoding service, database choice and schema, caching strategy, analytics pipeline, and CDN/geographic distribution. Justify each choice.
+  4. **Verification**: Walk through a concrete request flow for both write (shorten) and read (redirect) paths. Identify potential bottlenecks and explain how the design addresses them.
+
+expected:
+  response_contains:
+    - "Understanding"
+    - "Planning"
+    - "Execution"
+    - "Verification"
+    - "base62"
+    - "QPS"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

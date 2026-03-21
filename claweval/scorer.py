@@ -1,4 +1,4 @@
-"""Deterministic scoring engine for ClawEval."""
+"""Deterministic + hybrid scoring engine for ClawEval."""
 
 from __future__ import annotations
 
@@ -17,14 +17,18 @@ class ScoreResult:
     total_score: float  # 0.0 - 1.0
     breakdown: dict[str, float] = field(default_factory=dict)
     details: dict[str, Any] = field(default_factory=dict)
+    judge_score: dict[str, Any] | None = None  # Judge scores when available
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        d = {
             "task_id": self.task_id,
             "total_score": round(self.total_score, 4),
             "breakdown": {k: round(v, 4) for k, v in self.breakdown.items()},
             "details": self.details,
         }
+        if self.judge_score is not None:
+            d["judge_score"] = self.judge_score
+        return d
 
 
 def score_tool_calls(
@@ -200,3 +204,55 @@ def _weighted_total(
         weight_sum += w
 
     return total / weight_sum if weight_sum > 0 else 0.0
+
+
+def score_task_hybrid(
+    task: Task,
+    tool_calls: list[ToolCall],
+    response_text: str,
+    judge_scorer: Any,
+    scoring_mode: str = "hybrid",
+) -> ScoreResult:
+    """Score a task using deterministic, judge, or hybrid mode.
+
+    Args:
+        scoring_mode: "deterministic", "judge", or "hybrid" (40% det + 60% judge)
+    """
+    # Always compute deterministic score
+    det_result = score_task(task, tool_calls, response_text)
+
+    if scoring_mode == "deterministic" or judge_scorer is None:
+        return det_result
+
+    # Categories that stay deterministic-only
+    if task.category in ("tool_calling", "speed"):
+        return det_result
+
+    # Get judge score
+    task_prompt = task.user_message or task.description
+    judge_result = judge_scorer.score_response(
+        task_id=task.id,
+        category=task.category,
+        task_prompt=task_prompt,
+        model_response=response_text,
+    )
+
+    if scoring_mode == "judge":
+        return ScoreResult(
+            task_id=task.id,
+            total_score=judge_result.overall,
+            breakdown=det_result.breakdown,
+            details=det_result.details,
+            judge_score=judge_result.to_dict(),
+        )
+
+    # Hybrid: 40% deterministic + 60% judge
+    hybrid_score = (0.4 * det_result.total_score) + (0.6 * judge_result.overall)
+
+    return ScoreResult(
+        task_id=task.id,
+        total_score=hybrid_score,
+        breakdown=det_result.breakdown,
+        details=det_result.details,
+        judge_score=judge_result.to_dict(),
+    )

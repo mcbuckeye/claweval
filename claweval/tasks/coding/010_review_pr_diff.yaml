@@ -1,0 +1,166 @@
+id: coding_010
+name: "Review a 200-line PR diff and identify 3 planted bugs"
+category: coding
+description: "Review a large PR diff for a payment processing module and find all planted bugs"
+difficulty: hard
+
+system_prompt: |
+  You are a senior software engineer performing a thorough code review. Identify all bugs, security issues, and correctness problems.
+
+user_message: |
+  Review the following PR diff for a payment processing service. There are exactly 3 planted bugs. Find all of them, explain why each is a bug, and provide the fix.
+
+  ```diff
+  diff --git a/payments/processor.py b/payments/processor.py
+  index 1a2b3c4..5d6e7f8 100644
+  --- a/payments/processor.py
+  +++ b/payments/processor.py
+  @@ -1,10 +1,15 @@
+   import logging
+   import hashlib
+  +import hmac
+   from decimal import Decimal, ROUND_HALF_UP
+  -from typing import Optional
+  +from typing import Optional, Dict, Any
+   from datetime import datetime, timedelta
+  +from enum import Enum
+
+   logger = logging.getLogger(__name__)
+
+  +class PaymentStatus(Enum):
+  +    PENDING = "pending"
+  +    COMPLETED = "completed"
+  +    FAILED = "failed"
+  +    REFUNDED = "refunded"
+  +
+  @@ -15,30 +20,95 @@
+   class PaymentProcessor:
+       def __init__(self, gateway_client, db_session, webhook_secret: str):
+           self.gateway = gateway_client
+           self.db = db_session
+  -        self.webhook_secret = webhook_secret
+  +        self._webhook_secret = webhook_secret
+  +        self._idempotency_cache: Dict[str, Any] = {}
+
+  -    def process_payment(self, amount: float, currency: str, customer_id: str) -> dict:
+  +    def process_payment(
+  +        self,
+  +        amount: float,
+  +        currency: str,
+  +        customer_id: str,
+  +        idempotency_key: Optional[str] = None,
+  +    ) -> dict:
+  +        if idempotency_key and idempotency_key in self._idempotency_cache:
+  +            return self._idempotency_cache[idempotency_key]
+  +
+           # Validate amount
+  -        if amount <= 0:
+  +        if amount < 0:
+               raise ValueError("Invalid payment amount")
+
+  -        # Convert to cents
+  -        amount_cents = int(amount * 100)
+  +        # Convert to cents using Decimal for precision
+  +        amount_decimal = Decimal(str(amount))
+  +        amount_cents = int(amount_decimal * 100)
+
+           try:
+               charge = self.gateway.create_charge(
+                   amount=amount_cents,
+                   currency=currency,
+                   customer=customer_id,
+  +            )
+  +
+  +            record = {
+  +                "id": charge["id"],
+  +                "amount": amount_cents,
+  +                "currency": currency,
+  +                "customer_id": customer_id,
+  +                "status": PaymentStatus.COMPLETED.value,
+  +                "created_at": datetime.utcnow().isoformat(),
+  +            }
+  +
+  +            self.db.payments.insert_one(record)
+  +
+  +            if idempotency_key:
+  +                self._idempotency_cache[idempotency_key] = record
+  +
+  +            return record
+  +
+  +        except self.gateway.CardDeclinedError:
+  +            return {
+  +                "status": PaymentStatus.FAILED.value,
+  +                "error": "Card declined",
+  +            }
+  +        except Exception as e:
+  +            logger.error(f"Payment failed: {e}")
+  +            raise
+  +
+  +    def process_refund(self, payment_id: str, amount: Optional[float] = None) -> dict:
+  +        payment = self.db.payments.find_one({"id": payment_id})
+  +        if not payment:
+  +            raise ValueError(f"Payment {payment_id} not found")
+  +
+  +        if payment["status"] != PaymentStatus.COMPLETED.value:
+  +            raise ValueError("Can only refund completed payments")
+  +
+  +        refund_cents = amount * 100 if amount else payment["amount"]
+  +
+  +        if refund_cents > payment["amount"]:
+  +            raise ValueError("Refund exceeds original payment")
+  +
+  +        refund = self.gateway.create_refund(
+  +            charge_id=payment_id,
+  +            amount=refund_cents,
+  +        )
+  +
+  +        self.db.payments.update_one(
+  +            {"id": payment_id},
+  +            {"$set": {"status": PaymentStatus.REFUNDED.value}},
+  +        )
+  +
+  +        return {"refund_id": refund["id"], "status": "refunded"}
+  +
+  +    def verify_webhook(self, payload: bytes, signature: str) -> bool:
+  +        expected = hashlib.sha256(
+  +            self._webhook_secret.encode() + payload
+  +        ).hexdigest()
+  +        return expected == signature
+  +
+  +    def get_revenue_report(self, days: int = 30) -> Dict[str, Any]:
+  +        cutoff = datetime.utcnow() - timedelta(days=days)
+  +        payments = self.db.payments.find({
+  +            "status": PaymentStatus.COMPLETED.value,
+  +            "created_at": {"$gte": cutoff.isoformat()},
+  +        })
+  +
+  +        total = Decimal("0")
+  +        count = 0
+  +        for p in payments:
+  +            total += Decimal(str(p["amount"]))
+  +            count += 1
+  +
+  +        return {
+  +            "total_cents": int(total),
+  +            "count": count,
+  +            "average_cents": int(total / count) if count else 0,
+  +            "period_days": days,
+  +        }
+  ```
+
+  Carefully review every change. For each bug found, specify:
+  1. The exact line/section where the bug is
+  2. What the bug is and why it's dangerous
+  3. The corrected code
+
+expected:
+  response_contains:
+    - "amount < 0"
+    - "hmac"
+    - "refund_cents"
+    - "timing"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

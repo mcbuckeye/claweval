@@ -1,0 +1,105 @@
+id: coding_007
+name: "Debug a race condition in async code"
+category: coding
+description: "Identify and fix a race condition in an asyncio-based concurrent task manager"
+difficulty: hard
+
+system_prompt: |
+  You are an expert Python developer with deep knowledge of asyncio, concurrency, and race conditions.
+
+user_message: |
+  The following async task manager has a race condition that causes incorrect results when multiple tasks update the shared state concurrently. Users report that `get_balance` sometimes returns negative values even though `withdraw` should reject insufficient funds. Find and fix all race conditions.
+
+  ```python
+  import asyncio
+  from dataclasses import dataclass, field
+  from typing import Dict, List
+
+  @dataclass
+  class Account:
+      id: str
+      balance: float = 0.0
+      transaction_log: List[dict] = field(default_factory=list)
+
+  class BankService:
+      def __init__(self):
+          self.accounts: Dict[str, Account] = {}
+          self._total_processed = 0
+
+      async def create_account(self, account_id: str, initial_balance: float) -> Account:
+          account = Account(id=account_id, balance=initial_balance)
+          self.accounts[account_id] = account
+          return account
+
+      async def deposit(self, account_id: str, amount: float) -> float:
+          account = self.accounts[account_id]
+          await self._simulate_db_write()
+          account.balance += amount
+          account.transaction_log.append({"type": "deposit", "amount": amount})
+          self._total_processed += 1
+          return account.balance
+
+      async def withdraw(self, account_id: str, amount: float) -> float:
+          account = self.accounts[account_id]
+          if account.balance >= amount:
+              await self._simulate_db_write()
+              account.balance -= amount
+              account.transaction_log.append({"type": "withdraw", "amount": amount})
+              self._total_processed += 1
+              return account.balance
+          raise ValueError("Insufficient funds")
+
+      async def transfer(self, from_id: str, to_id: str, amount: float) -> None:
+          await self.withdraw(from_id, amount)
+          await self.deposit(to_id, amount)
+
+      async def get_balance(self, account_id: str) -> float:
+          return self.accounts[account_id].balance
+
+      async def get_total_processed(self) -> int:
+          return self._total_processed
+
+      async def _simulate_db_write(self):
+          await asyncio.sleep(0.01)
+
+  async def main():
+      bank = BankService()
+      await bank.create_account("alice", 1000.0)
+      await bank.create_account("bob", 500.0)
+
+      # These run concurrently and trigger the race condition
+      tasks = [
+          bank.withdraw("alice", 800),
+          bank.withdraw("alice", 800),
+          bank.transfer("alice", "bob", 200),
+          bank.deposit("alice", 100),
+          bank.transfer("bob", "alice", 50),
+      ]
+      results = await asyncio.gather(*tasks, return_exceptions=True)
+      print(f"Alice: {await bank.get_balance('alice')}")
+      print(f"Bob: {await bank.get_balance('bob')}")
+      print(f"Total transactions: {await bank.get_total_processed()}")
+
+  asyncio.run(main())
+  ```
+
+  Requirements:
+  - Identify every race condition in this code (there are at least 3 distinct issues)
+  - Explain why each is a problem with a concrete interleaving scenario
+  - Provide the corrected code using asyncio.Lock (per-account locks, not a single global lock)
+  - Ensure transfer operations acquire locks on both accounts in a consistent order to prevent deadlocks
+  - Fix the _total_processed counter to be atomic
+  - Preserve the same public API
+
+expected:
+  response_contains:
+    - "asyncio.Lock"
+    - "check-then-act"
+    - "deadlock"
+    - "await"
+    - "async with"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

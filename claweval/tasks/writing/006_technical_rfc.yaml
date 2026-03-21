@@ -1,0 +1,36 @@
+id: writing_006
+name: "Technical RFC document"
+category: writing
+description: "Write a complete technical RFC with problem statement, proposal, alternatives, and risk analysis"
+difficulty: hard
+
+system_prompt: |
+  You are a senior software architect who writes clear, thorough technical design documents and RFCs.
+
+user_message: |
+  Write a technical RFC for migrating our monolithic e-commerce platform to a microservices architecture. The current system is a Django monolith handling 50,000 RPM with a PostgreSQL database that has grown to 2TB. We're experiencing deployment bottlenecks (full deploys take 45 minutes), scaling issues (we can't scale the order processing independently from the product catalog), and developer velocity problems (15 engineers stepping on each other in a single codebase).
+
+  The RFC must include ALL of the following sections:
+
+  1. **Problem Statement** — Clearly articulate the current pain points with metrics.
+  2. **Proposed Solution** — Describe the target microservices architecture. Identify at least 4 services to extract (e.g., Order Service, Product Catalog, User/Auth, Payment). Specify the communication pattern (sync REST/gRPC vs async messaging) and data ownership strategy.
+  3. **Migration Strategy** — Outline a phased approach. We cannot do a big-bang rewrite. Describe how the strangler fig pattern would apply here.
+  4. **Alternatives Considered** — Evaluate at least 2 alternatives (e.g., modular monolith, serverless decomposition) with reasons for rejection.
+  5. **Risks and Mitigations** — Identify at least 4 risks (e.g., data consistency, increased operational complexity, network latency, distributed tracing) and propose mitigations for each.
+  6. **Success Metrics** — Define measurable criteria for determining if the migration succeeded.
+
+  Use a professional RFC tone. Be specific and technical, not hand-wavy.
+
+expected:
+  response_contains:
+    - "strangler"
+    - "data consistency"
+    - "microservice"
+    - "migration"
+    - "risk"
+    - "alternative"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

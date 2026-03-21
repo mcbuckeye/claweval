@@ -1,0 +1,38 @@
+id: reasoning_006
+name: "Multi-constraint optimization"
+category: reasoning
+description: "Schedule 5 meetings subject to 8 constraints, finding the only valid arrangement"
+difficulty: hard
+
+system_prompt: |
+  You are an expert scheduling assistant. Find the unique valid schedule that satisfies every constraint. List each meeting with its assigned time slot.
+
+user_message: |
+  Schedule these 5 meetings into time slots on Monday (9:00, 10:00, 11:00, 13:00, 14:00).
+  Each meeting occupies exactly one slot. No two meetings share a slot.
+
+  Meetings: Architecture Review (A), Budget Planning (B), Client Demo (C), Design Sprint (D), Executive Sync (E)
+
+  Constraints:
+  1. The Client Demo must be after lunch (13:00 or 14:00).
+  2. Architecture Review must be the first meeting of the day (9:00).
+  3. Budget Planning must come immediately before Executive Sync (consecutive slots).
+  4. Design Sprint cannot be at 14:00.
+  5. Executive Sync must be in the afternoon (13:00 or 14:00).
+  6. Budget Planning must be before the Client Demo.
+  7. Design Sprint must be adjacent to Architecture Review (10:00).
+  8. Client Demo must be the last meeting of the day (14:00).
+
+  What is the unique valid schedule? List each slot and its meeting.
+
+expected:
+  response_contains:
+    - "9:00"
+    - "Architecture Review"
+    - "Client Demo"
+    - "14:00"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

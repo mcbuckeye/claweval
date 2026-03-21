@@ -1,0 +1,57 @@
+id: research_013
+name: "Summarize technical paper for executive audience"
+category: research
+description: "Translate a dense technical paper into a clear executive summary with business implications"
+difficulty: hard
+
+system_prompt: |
+  You are a technical communication specialist who translates complex research into clear, actionable executive summaries. Preserve accuracy while eliminating jargon. Focus on business implications and strategic relevance.
+
+tools:
+  - name: web_search
+    description: "Search the web for information"
+    parameters:
+      type: object
+      properties:
+        query:
+          type: string
+      required: ["query"]
+
+mock_tool_responses:
+  web_search:
+    response: "Mixture of Experts (MoE) is a machine learning architecture where multiple specialized sub-networks (experts) process different parts of the input, with a gating network routing inputs to the most relevant experts. This allows models to scale parameters without proportionally scaling computation costs. Notable examples include Google's Switch Transformer and Mixtral by Mistral AI."
+
+user_message: |
+  Summarize the following technical paper for a C-suite audience (CEO, CFO, CTO) who need to understand implications for their AI strategy. The summary should be no more than 500 words, avoid jargon, and end with 3-5 actionable recommendations.
+
+  PAPER: "Sparse Mixture-of-Experts at Scale: Efficiency-Performance Tradeoffs in Production LLM Deployment"
+
+  Abstract: We present a comprehensive analysis of Sparse Mixture-of-Experts (SMoE) architectures deployed at production scale across 14 enterprise use cases. Our study compares SMoE models (ranging from 47B to 1.2T total parameters with 8-128 experts and top-k routing where k∈{1,2,4}) against equivalent dense models on cost-efficiency, latency, throughput, and task performance metrics.
+
+  Section 2 — Architecture and Methodology:
+  We evaluate three SMoE configurations: (a) Token-level routing with auxiliary load balancing loss (λ=0.01), (b) Sentence-level routing with hash-based expert assignment, (c) Hybrid routing combining learned gating with capacity factors c∈{1.0,1.25,1.5}. All models are trained on 2.4T tokens using a cosine learning rate schedule with warmup. We use expert parallelism across 256-1024 A100 GPUs with all-to-all communication patterns optimized via hierarchical routing.
+
+  Section 3 — Key Results:
+  3.1 Cost Efficiency: SMoE models with 8 experts and top-2 routing achieved 93.7% of dense model quality while activating only 23% of parameters per token. This translates to a 2.8x reduction in inference FLOPs and a 2.1x reduction in actual serving costs (accounting for communication overhead and load imbalancing). At top-1 routing, costs dropped by 3.4x but quality degraded to 87.2% of dense equivalent.
+
+  3.2 Latency: Time-to-first-token (TTFT) increased by 15% for SMoE models due to routing overhead. However, tokens-per-second throughput improved by 2.3x, making SMoE superior for generation-heavy workloads. Batch sizes above 32 showed diminishing returns due to expert capacity constraints.
+
+  3.3 Task Performance by Domain: SMoE models excelled in multi-domain scenarios (customer support across 8 product lines: +4.2% accuracy vs dense). In narrow single-domain tasks (legal contract analysis), dense models outperformed by 2.8%. Catastrophic expert collapse (>60% of tokens routed to <10% of experts) occurred in 3 of 14 deployments, requiring manual intervention.
+
+  3.4 Scaling Behavior: Increasing from 8 to 64 experts improved quality logarithmically but increased communication costs linearly. The optimal frontier was 16-32 experts with top-2 routing for most enterprise use cases. Memory requirements scale with total parameters, requiring infrastructure planning for models exceeding 200B total parameters.
+
+  Section 4 — Production Considerations:
+  Expert load imbalancing caused 99th percentile latency spikes of 5-12x in 4 deployments. Mitigation required dynamic capacity factors and request queuing. Model updates via expert-level fine-tuning reduced retraining costs by 74% vs full model retraining but introduced expert compatibility risks when updating >30% of experts simultaneously. A/B testing SMoE models requires 2.1x more traffic for statistical significance due to routing stochasticity.
+
+expected:
+  response_contains:
+    - "cost"
+    - "efficiency"
+    - "specialist"
+    - "recommendation"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    response_quality: 0.7

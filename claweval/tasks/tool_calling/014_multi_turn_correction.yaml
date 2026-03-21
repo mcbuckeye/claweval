@@ -1,0 +1,131 @@
+id: tool_calling_014
+name: "Multi-turn user correction mid-chain"
+category: tool_calling
+description: "Model must handle a multi-turn conversation where the user corrects tool parameters partway through a chain"
+difficulty: hard
+
+system_prompt: |
+  You are a travel booking assistant with access to search and booking tools.
+  Always confirm details with the user before finalizing bookings. If the user
+  corrects any details, adjust your tool calls accordingly.
+
+user_message: |
+  Book me a round-trip flight from SFO to NRT departing January 15 and returning
+  January 28, economy class, 1 passenger.
+
+tools:
+  - name: search_flights
+    description: "Search for available flights"
+    parameters:
+      type: object
+      properties:
+        origin:
+          type: string
+          description: "IATA airport code for departure"
+        destination:
+          type: string
+          description: "IATA airport code for arrival"
+        departure_date:
+          type: string
+          description: "Departure date in YYYY-MM-DD format"
+        return_date:
+          type: string
+          description: "Return date in YYYY-MM-DD format (for round-trip)"
+        cabin_class:
+          type: string
+          enum: ["economy", "premium_economy", "business", "first"]
+        passengers:
+          type: integer
+          description: "Number of passengers"
+      required: ["origin", "destination", "departure_date", "cabin_class", "passengers"]
+
+  - name: get_fare_details
+    description: "Get detailed fare breakdown for a specific flight offer"
+    parameters:
+      type: object
+      properties:
+        offer_id:
+          type: string
+          description: "Flight offer ID from search results"
+      required: ["offer_id"]
+
+  - name: create_booking
+    description: "Create a flight booking from an offer"
+    parameters:
+      type: object
+      properties:
+        offer_id:
+          type: string
+          description: "Flight offer ID to book"
+        passenger_name:
+          type: string
+          description: "Full name as on passport"
+        passenger_email:
+          type: string
+          description: "Contact email"
+        seat_preference:
+          type: string
+          enum: ["window", "middle", "aisle"]
+      required: ["offer_id", "passenger_name", "passenger_email"]
+
+mock_tool_responses:
+  search_flights:
+    responses:
+      - condition: "departure_date == '2026-01-15' and return_date == '2026-01-28' and cabin_class == 'economy'"
+        response: '{"offers": [{"offer_id": "FL-8821A", "airline": "United", "outbound": "SFO->NRT 10:30-15:20+1", "return": "NRT->SFO 17:00-10:40", "price_usd": 1245.00, "cabin": "economy"}, {"offer_id": "FL-8821B", "airline": "ANA", "outbound": "SFO->NRT 11:15-16:00+1", "return": "NRT->SFO 18:30-11:15", "price_usd": 1380.00, "cabin": "economy"}]}'
+      - condition: "departure_date == '2026-01-15' and return_date == '2026-01-30' and cabin_class == 'premium_economy'"
+        response: '{"offers": [{"offer_id": "FL-9934A", "airline": "ANA", "outbound": "SFO->NRT 11:15-16:00+1", "return": "NRT->SFO 18:30-11:15", "price_usd": 2150.00, "cabin": "premium_economy"}, {"offer_id": "FL-9934B", "airline": "JAL", "outbound": "SFO->NRT 13:00-17:45+1", "return": "NRT->SFO 10:00-03:50", "price_usd": 2280.00, "cabin": "premium_economy"}]}'
+  get_fare_details:
+    responses:
+      - condition: "offer_id == 'FL-9934A'"
+        response: '{"offer_id": "FL-9934A", "airline": "ANA", "base_fare": 1850.00, "taxes": 210.00, "fees": 90.00, "total": 2150.00, "baggage": "2x23kg included", "seat_pitch": "38 inches", "cancellation": "Free cancellation within 24h"}'
+  create_booking:
+    response: '{"booking_ref": "BK-44721", "status": "confirmed", "offer_id": "FL-9934A", "passenger": "John Tanaka", "total_charged": 2150.00}'
+
+conversation_turns:
+  - role: assistant
+    action: "Call search_flights with original params"
+  - role: user
+    message: "Actually, change the return to January 30 instead, and upgrade to premium economy. Also my name is John Tanaka and email is john@example.com. Book the cheapest ANA option."
+  - role: assistant
+    action: "Call search_flights with corrected params, then get_fare_details, then create_booking"
+
+expected:
+  tool_calls:
+    - name: search_flights
+      args:
+        origin: "SFO"
+        destination: "NRT"
+        departure_date: "2026-01-15"
+        return_date: "2026-01-28"
+        cabin_class: "economy"
+        passengers: 1
+    - name: search_flights
+      args:
+        origin: "SFO"
+        destination: "NRT"
+        departure_date: "2026-01-15"
+        return_date: "2026-01-30"
+        cabin_class: "premium_economy"
+        passengers: 1
+    - name: get_fare_details
+      args:
+        offer_id: "FL-9934A"
+    - name: create_booking
+      args:
+        offer_id: "FL-9934A"
+        passenger_name: "John Tanaka"
+        passenger_email: "john@example.com"
+  response_contains:
+    - "BK-44721"
+    - "confirmed"
+    - "ANA"
+    - "2150"
+    - "premium_economy"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    correct_params: 0.3
+    response_quality: 0.4

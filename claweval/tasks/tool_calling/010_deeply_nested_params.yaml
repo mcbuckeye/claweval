@@ -1,0 +1,149 @@
+id: tool_calling_010
+name: "Deeply nested JSON parameters"
+category: tool_calling
+description: "Model must construct a tool call with deeply nested JSON parameter structure including arrays of objects with nested objects"
+difficulty: hard
+
+system_prompt: |
+  You are a CI/CD pipeline configuration assistant. Help users create pipeline
+  configurations by calling the appropriate tools with the exact structure required.
+
+user_message: |
+  Create a deployment pipeline called "prod-release-v3" for the payments-service repo.
+  It should have 3 stages:
+  1. "build" stage with a "docker_build" job that uses the golang:1.21 image, runs on
+     the "linux-large" runner pool, has environment variables APP_ENV=production and
+     LOG_LEVEL=warn, and depends on no other jobs.
+  2. "test" stage with an "integration_tests" job that uses the golang:1.21 image,
+     runs on "linux-large", has environment variable APP_ENV=test, depends on the
+     "docker_build" job, and has a retry policy of max 3 attempts with backoff
+     multiplier 2.0 and initial delay of 5 seconds.
+  3. "deploy" stage with a "k8s_deploy" job that uses the bitnami/kubectl:1.28 image,
+     runs on "linux-small", has environment variables CLUSTER=prod-us-east-1 and
+     NAMESPACE=payments, depends on "integration_tests", and has a notification
+     config that sends to Slack channel #deployments on both success and failure.
+
+tools:
+  - name: create_pipeline
+    description: "Create a new CI/CD pipeline configuration"
+    parameters:
+      type: object
+      properties:
+        pipeline_name:
+          type: string
+          description: "Unique name for the pipeline"
+        repository:
+          type: string
+          description: "Source repository name"
+        stages:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              jobs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    job_name:
+                      type: string
+                    image:
+                      type: string
+                    runner_pool:
+                      type: string
+                    env_vars:
+                      type: object
+                      additionalProperties:
+                        type: string
+                    depends_on:
+                      type: array
+                      items:
+                        type: string
+                    retry_policy:
+                      type: object
+                      properties:
+                        max_attempts:
+                          type: integer
+                        backoff:
+                          type: object
+                          properties:
+                            multiplier:
+                              type: number
+                            initial_delay_seconds:
+                              type: integer
+                    notifications:
+                      type: object
+                      properties:
+                        slack:
+                          type: object
+                          properties:
+                            channel:
+                              type: string
+                            on_success:
+                              type: boolean
+                            on_failure:
+                              type: boolean
+                  required: ["job_name", "image", "runner_pool", "env_vars", "depends_on"]
+            required: ["name", "jobs"]
+      required: ["pipeline_name", "repository", "stages"]
+
+mock_tool_responses:
+  create_pipeline:
+    response: '{"pipeline_id": "pipe-9f3a2b", "pipeline_name": "prod-release-v3", "status": "created", "stages_count": 3, "total_jobs": 3, "webhook_url": "https://ci.internal/hooks/pipe-9f3a2b"}'
+
+expected:
+  tool_calls:
+    - name: create_pipeline
+      args:
+        pipeline_name: "prod-release-v3"
+        repository: "payments-service"
+        stages:
+          - name: "build"
+            jobs:
+              - job_name: "docker_build"
+                image: "golang:1.21"
+                runner_pool: "linux-large"
+                env_vars:
+                  APP_ENV: "production"
+                  LOG_LEVEL: "warn"
+                depends_on: []
+          - name: "test"
+            jobs:
+              - job_name: "integration_tests"
+                image: "golang:1.21"
+                runner_pool: "linux-large"
+                env_vars:
+                  APP_ENV: "test"
+                depends_on: ["docker_build"]
+                retry_policy:
+                  max_attempts: 3
+                  backoff:
+                    multiplier: 2.0
+                    initial_delay_seconds: 5
+          - name: "deploy"
+            jobs:
+              - job_name: "k8s_deploy"
+                image: "bitnami/kubectl:1.28"
+                runner_pool: "linux-small"
+                env_vars:
+                  CLUSTER: "prod-us-east-1"
+                  NAMESPACE: "payments"
+                depends_on: ["integration_tests"]
+                notifications:
+                  slack:
+                    channel: "#deployments"
+                    on_success: true
+                    on_failure: true
+  response_contains:
+    - "pipe-9f3a2b"
+    - "prod-release-v3"
+    - "created"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    correct_params: 0.3
+    response_quality: 0.4

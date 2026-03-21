@@ -1,0 +1,40 @@
+id: research_007
+name: "Build a comparison matrix"
+category: research
+description: "Build a detailed comparison matrix of 5 products across 8 criteria from provided documentation"
+difficulty: hard
+
+system_prompt: |
+  You are a technical analyst. Build precise, structured comparison matrices from product documentation. Present data in a clear tabular format with accurate extraction from source material.
+
+user_message: |
+  Using the product documentation excerpts below, build a comparison matrix for these 5 cloud database services across all 8 criteria: (1) Max Storage, (2) Read Latency, (3) Write Latency, (4) Pricing Model, (5) Replication, (6) Consistency Model, (7) Query Language, (8) Max Connections.
+
+  PRODUCT 1 — AuroraScale DB:
+  AuroraScale supports up to 128 TB of storage per cluster. Typical read latency is under 3ms with write latency around 8ms for single-region deployments. Pricing is consumption-based at $0.25 per million read units and $1.25 per million write units, plus $0.10/GB/month storage. It offers synchronous replication within a region (3 copies) and asynchronous cross-region replication. AuroraScale provides strong consistency for reads from the primary and eventual consistency for replica reads. It supports SQL-compatible queries via AuroraQL. Maximum concurrent connections per instance: 5,000.
+
+  PRODUCT 2 — CosmoStore:
+  CosmoStore provides virtually unlimited storage with automatic partitioning. Read latency is guaranteed under 10ms at the 99th percentile globally. Write latency is under 15ms. Pricing tiers: Serverless ($0.30 per million RUs) or Provisioned (from $24/month per 100 RU/s). Multi-region writes with 5 configurable consistency levels: strong, bounded staleness, session, consistent prefix, and eventual. Supports SQL API, MongoDB API, Cassandra API, Gremlin API, and Table API. Maximum concurrent connections: 50,000 per account.
+
+  PRODUCT 3 — NeonBase:
+  NeonBase is a serverless PostgreSQL platform with up to 10 TB per database. Read latency averages 4ms with write latency around 6ms. Pricing: Free tier up to 512 MB, then $0.09/GB/month storage plus $0.016 per compute-hour. Replication uses streaming replication with up to 7 read replicas. Offers full ACID strong consistency. Native PostgreSQL wire protocol — full SQL support. Max connections: 10,000 with connection pooling.
+
+  PRODUCT 4 — TigerGraph Cloud:
+  TigerGraph supports up to 50 TB per cluster. Read latency for graph traversals: 10-50ms depending on depth. Write/ingestion latency: 20ms per batch insert. Pricing: instance-based starting at $0.956/hour for the smallest instance (4 vCPU, 16 GB RAM). Offers HA replication with 2 replicas per partition. Strong consistency within a partition, eventual across partitions. Uses GSQL (graph query language) and also supports openCypher. Max concurrent connections: 2,000.
+
+  PRODUCT 5 — RedisVault:
+  RedisVault offers up to 2 TB per cluster in the managed tier. Sub-millisecond read latency (<1ms) and write latency under 2ms. Pricing: $0.124/GB/hour for standard tier, $0.248/GB/hour for high-availability tier. Active-active geo-replication with conflict-free replicated data types (CRDTs). Offers strong eventual consistency with CRDT-based conflict resolution. Commands via Redis protocol (RESP3), plus RedisJSON and RediSearch modules. Max concurrent connections: 64,000.
+
+expected:
+  response_contains:
+    - "128 TB"
+    - "eventual"
+    - "GSQL"
+    - "sub-millisecond"
+    - "50,000"
+    - "ACID"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

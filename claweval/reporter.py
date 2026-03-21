@@ -43,6 +43,7 @@ DASHBOARD_TEMPLATE = """\
   .score-low { color: #f85149; }
   .model-badge { display: inline-block; padding: 2px 8px; border-radius: 12px;
                  font-size: 0.75rem; font-weight: 600; margin-right: 4px; }
+  .efficiency { color: #bc8cff; font-weight: 600; }
   @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -70,7 +71,7 @@ DASHBOARD_TEMPLATE = """\
   <table>
     <thead><tr><th>Model</th><th>Overall</th>
     {% for cat in categories %}<th>{{ cat }}</th>{% endfor %}
-    <th>Avg tok/s</th><th>Avg TTFT</th>
+    <th>Avg tok/s</th><th>Gen tok/s</th><th>Avg TTFT</th><th>RAM (GB)</th><th>Q/GB</th>
     </tr></thead>
     <tbody>
     {% for model_id, data in models.items() %}
@@ -85,7 +86,10 @@ DASHBOARD_TEMPLATE = """\
       </td>
       {% endfor %}
       <td>{{ "%.1f"|format(data.speed.avg_tok_s) }}</td>
+      <td>{{ "%.1f"|format(data.speed.get('avg_gen_tok_s', 0)) }}</td>
       <td>{{ "%.0f"|format(data.speed.avg_ttft_ms) }}ms</td>
+      <td>{{ "%.1f"|format(data.get('ram_gb', 0)) if data.get('ram_gb', 0) else '—' }}</td>
+      <td class="efficiency">{{ "%.2f"|format(data.get('efficiency', {}).get('quality_per_gb', 0)) if data.get('efficiency', {}).get('quality_per_gb', 0) else '—' }}</td>
     </tr>
     {% endfor %}
     </tbody>
@@ -180,14 +184,18 @@ class ModelSummary:
     categories: dict[str, float] = None
     speed: dict[str, float] = None
     task_results: list[dict[str, Any]] = None
+    efficiency: dict[str, float] = None
+    ram_gb: float = 0.0
 
     def __post_init__(self):
         if self.categories is None:
             self.categories = {}
         if self.speed is None:
-            self.speed = {"avg_tok_s": 0, "avg_ttft_ms": 0}
+            self.speed = {"avg_tok_s": 0, "avg_ttft_ms": 0, "avg_gen_tok_s": 0}
         if self.task_results is None:
             self.task_results = []
+        if self.efficiency is None:
+            self.efficiency = {"quality_per_gb": 0, "quality_per_second": 0}
 
 
 def aggregate_results(
@@ -226,18 +234,41 @@ def aggregate_results(
         # Speed metrics
         all_tok_s = [r.timing.tokens_per_second for r in task_results if r.timing.tokens_per_second > 0]
         all_ttft = [r.timing.ttft_ms for r in task_results if r.timing.ttft_ms > 0]
+        all_gen_tok_s = [r.timing.estimated_gen_tok_s for r in task_results if r.timing.estimated_gen_tok_s > 0]
 
         overall = sum(cat_scores.values()) / len(cat_scores) if cat_scores else 0.0
+
+        avg_tok_s = sum(all_tok_s) / len(all_tok_s) if all_tok_s else 0
+        avg_ttft = sum(all_ttft) / len(all_ttft) if all_ttft else 0
+        avg_gen_tok_s = sum(all_gen_tok_s) / len(all_gen_tok_s) if all_gen_tok_s else 0
+        avg_wall_s = (
+            sum(r.timing.wall_clock_ms for r in task_results) / len(task_results) / 1000
+            if task_results else 0
+        )
+
+        # Get ram_gb from first result's model config if available
+        ram_gb = 0.0
+        # ram_gb is passed through model_names dict extended format or set externally
+
+        # Efficiency metrics
+        quality_per_gb = overall / ram_gb if ram_gb > 0 else 0
+        quality_per_second = overall / avg_wall_s if avg_wall_s > 0 else 0
 
         summaries[model_id] = ModelSummary(
             name=model_names.get(model_id, model_id),
             overall=overall,
             categories=cat_scores,
             speed={
-                "avg_tok_s": sum(all_tok_s) / len(all_tok_s) if all_tok_s else 0,
-                "avg_ttft_ms": sum(all_ttft) / len(all_ttft) if all_ttft else 0,
+                "avg_tok_s": avg_tok_s,
+                "avg_ttft_ms": avg_ttft,
+                "avg_gen_tok_s": avg_gen_tok_s,
             },
             task_results=[r.to_dict() for r in task_results],
+            efficiency={
+                "quality_per_gb": round(quality_per_gb, 4),
+                "quality_per_second": round(quality_per_second, 4),
+            },
+            ram_gb=ram_gb,
         )
 
     return summaries
@@ -248,6 +279,7 @@ def save_json_results(
     model_names: dict[str, str] | None = None,
     output_dir: Path | None = None,
     run_id: str | None = None,
+    filename: str | None = None,
 ) -> Path:
     """Save results as JSON."""
     output_dir = output_dir or RESULTS_DIR
@@ -264,13 +296,18 @@ def save_json_results(
                 "overall": round(s.overall, 4),
                 "categories": {k: round(v, 4) for k, v in s.categories.items()},
                 "speed": s.speed,
+                "efficiency": s.efficiency,
+                "ram_gb": s.ram_gb,
                 "tasks": s.task_results,
             }
             for model_id, s in summaries.items()
         },
     }
 
-    output_path = output_dir / f"results_{run_id.replace(':', '-')}.json"
+    if filename:
+        output_path = output_dir / filename
+    else:
+        output_path = output_dir / f"results_{run_id.replace(':', '-')}.json"
     with open(output_path, "w") as f:
         json.dump(data, f, indent=2)
 
@@ -320,6 +357,8 @@ def generate_dashboard(
                 "overall": s.overall,
                 "categories": s.categories,
                 "speed": s.speed,
+                "efficiency": s.efficiency,
+                "ram_gb": s.ram_gb,
             }
             for mid, s in summaries.items()
         },

@@ -1,0 +1,25 @@
+id: speed_007
+name: "Large structured JSON with 20+ fields"
+category: speed
+description: "Generate a deeply structured JSON object with many fields — measures format-constrained throughput at scale"
+difficulty: hard
+
+system_prompt: |
+  You are a data architect assistant. Always respond with valid, well-structured JSON. Do not include any text outside the JSON block.
+
+user_message: |
+  Generate a single JSON object representing a comprehensive company profile. It must contain at least 20 top-level fields including: id, name, legal_name, founded_year, industry, sub_industry, headquarters (object with street, city, state, country, postal_code), ceo, cto, cfo, employee_count, annual_revenue, stock_ticker, website, phone, email, description, products (array of at least 5 objects each with name, category, launch_year, and status), offices (array of at least 3 objects with city, country, and headcount), investors (array of at least 4 strings), certifications (array of at least 3 strings), and financial_summary (object with fiscal_year, revenue, net_income, operating_margin, and debt_to_equity). Use realistic-looking fictional data.
+
+expected:
+  response_contains:
+    - "headquarters"
+    - "products"
+    - "offices"
+    - "investors"
+    - "financial_summary"
+    - "annual_revenue"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

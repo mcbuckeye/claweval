@@ -1,0 +1,35 @@
+id: reasoning_007
+name: "Chain-of-thought math"
+category: reasoning
+description: "Solve 3 nested word problems where each answer feeds into the next"
+difficulty: hard
+
+system_prompt: |
+  You are a math tutor. Solve each sub-problem step by step, then combine the results for the final answer.
+
+user_message: |
+  Solve these three linked problems:
+
+  Problem 1: A factory produces 480 widgets per day across 3 production lines.
+  Line A produces twice as many as Line B. Line C produces 60 more than Line B.
+  How many widgets does Line A produce per day?
+
+  Problem 2: Each widget from Line A costs $0.75 to produce. The factory sells
+  them at a 140% markup (selling price = cost + 140% of cost). If 15% of Line A's
+  widgets fail quality control and cannot be sold, what is the total daily revenue
+  from Line A's widgets that pass QC?
+
+  Problem 3: The factory reinvests 35% of Line A's daily revenue into R&D. After
+  a 20-day work month, the cumulative R&D fund is taxed at 22%. How much money
+  remains in the R&D fund after tax?
+
+expected:
+  response_contains:
+    - "240"
+    - "367.20"
+    - "5723.52"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

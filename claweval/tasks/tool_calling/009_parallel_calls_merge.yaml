@@ -1,0 +1,133 @@
+id: tool_calling_009
+name: "Parallel tool calls with result merging"
+category: tool_calling
+description: "Model must make 3 independent tool calls in parallel, then synthesize their results into a unified answer"
+difficulty: hard
+
+system_prompt: |
+  You are a financial portfolio assistant. When the user asks for a portfolio summary,
+  you should fetch stock prices, currency rates, and account holdings simultaneously
+  since these are independent lookups. Then combine all results into a coherent summary
+  with total portfolio value in USD.
+
+user_message: |
+  Give me a full portfolio summary for account ACC-7721. I need current stock prices,
+  the EUR/USD exchange rate, and the account holdings. Calculate the total value in USD.
+
+tools:
+  - name: get_stock_prices
+    description: "Get current stock prices for a list of ticker symbols"
+    parameters:
+      type: object
+      properties:
+        tickers:
+          type: array
+          items:
+            type: string
+          description: "List of stock ticker symbols"
+        currency:
+          type: string
+          description: "Currency for prices (default USD)"
+      required: ["tickers"]
+
+  - name: get_exchange_rate
+    description: "Get current exchange rate between two currencies"
+    parameters:
+      type: object
+      properties:
+        from_currency:
+          type: string
+          description: "Source currency code"
+        to_currency:
+          type: string
+          description: "Target currency code"
+      required: ["from_currency", "to_currency"]
+
+  - name: get_account_holdings
+    description: "Get the current holdings for a brokerage account"
+    parameters:
+      type: object
+      properties:
+        account_id:
+          type: string
+          description: "Account identifier"
+      required: ["account_id"]
+
+  - name: calculate_portfolio_value
+    description: "Calculate total portfolio value given holdings and prices"
+    parameters:
+      type: object
+      properties:
+        holdings:
+          type: array
+          items:
+            type: object
+            properties:
+              ticker:
+                type: string
+              shares:
+                type: number
+              currency:
+                type: string
+          description: "List of holdings"
+        prices:
+          type: object
+          description: "Map of ticker to price"
+        exchange_rates:
+          type: object
+          description: "Map of currency pair to rate"
+      required: ["holdings", "prices", "exchange_rates"]
+
+mock_tool_responses:
+  get_account_holdings:
+    response: '{"account_id": "ACC-7721", "holdings": [{"ticker": "AAPL", "shares": 150, "currency": "USD"}, {"ticker": "MSFT", "shares": 80, "currency": "USD"}, {"ticker": "SAP", "shares": 200, "currency": "EUR"}]}'
+  get_stock_prices:
+    response: '{"prices": {"AAPL": 242.50, "MSFT": 478.30, "SAP": 235.80}, "currency": "USD", "timestamp": "2025-12-15T14:30:00Z"}'
+  get_exchange_rate:
+    response: '{"from": "EUR", "to": "USD", "rate": 1.0847, "timestamp": "2025-12-15T14:30:00Z"}'
+  calculate_portfolio_value:
+    response: '{"total_usd": 125043.18, "breakdown": [{"ticker": "AAPL", "value_usd": 36375.00}, {"ticker": "MSFT", "value_usd": 38264.00}, {"ticker": "SAP", "value_usd": 51156.12}], "timestamp": "2025-12-15T14:30:00Z"}'
+
+expected:
+  tool_calls:
+    - name: get_account_holdings
+      args:
+        account_id: "ACC-7721"
+    - name: get_stock_prices
+      args:
+        tickers: ["AAPL", "MSFT", "SAP"]
+    - name: get_exchange_rate
+      args:
+        from_currency: "EUR"
+        to_currency: "USD"
+    - name: calculate_portfolio_value
+      args:
+        holdings:
+          - ticker: "AAPL"
+            shares: 150
+            currency: "USD"
+          - ticker: "MSFT"
+            shares: 80
+            currency: "USD"
+          - ticker: "SAP"
+            shares: 200
+            currency: "EUR"
+        prices:
+          AAPL: 242.50
+          MSFT: 478.30
+          SAP: 235.80
+        exchange_rates:
+          EUR_USD: 1.0847
+  response_contains:
+    - "AAPL"
+    - "MSFT"
+    - "SAP"
+    - "125043"
+    - "USD"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    correct_params: 0.3
+    response_quality: 0.4

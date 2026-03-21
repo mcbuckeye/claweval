@@ -134,3 +134,37 @@ def test_default_settings():
     assert s.timeout_seconds == 300
     assert "tool_calling" in s.categories
     assert len(s.categories) == 7
+    assert s.scoring_mode == "deterministic"
+    assert s.judge_api_key_env == "ANTHROPIC_API_KEY"
+
+
+def test_model_config_ram_gb(tmp_path):
+    data = {
+        "providers": [{
+            "name": "test",
+            "base_url": "http://localhost/v1",
+            "api_key": "test",
+            "models": [{"id": "m1", "name": "Model 1", "ram_gb": 33.6}],
+        }],
+    }
+    path = tmp_path / "config.yaml"
+    with open(path, "w") as f:
+        yaml.dump(data, f)
+    cfg = load_config(path)
+    assert cfg.models[0].ram_gb == 33.6
+
+
+def test_settings_scoring_mode(tmp_path):
+    data = {
+        "providers": [],
+        "settings": {
+            "scoring_mode": "hybrid",
+            "judge_api_key_env": "MY_KEY",
+        },
+    }
+    path = tmp_path / "config.yaml"
+    with open(path, "w") as f:
+        yaml.dump(data, f)
+    cfg = load_config(path)
+    assert cfg.settings.scoring_mode == "hybrid"
+    assert cfg.settings.judge_api_key_env == "MY_KEY"

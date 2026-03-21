@@ -1,0 +1,45 @@
+id: writing_011
+name: "Data breach customer apology email"
+category: writing
+description: "Draft a customer-facing apology email for a data breach scenario"
+difficulty: hard
+
+system_prompt: |
+  You are a crisis communications expert who crafts transparent, accountable, and actionable customer communications during security incidents.
+
+user_message: |
+  Draft a customer-facing email for the following data breach scenario:
+
+  Incident Details:
+  - Company: CloudVault, a B2B SaaS platform for document storage and collaboration
+  - What happened: An unauthorized third party exploited a vulnerability in our OAuth integration to access customer account metadata between February 12-15, 2026.
+  - Data exposed: Names, email addresses, company names, and document titles (NOT document contents, NOT passwords, NOT payment information). Approximately 12,000 business accounts affected.
+  - How it was discovered: Internal security monitoring flagged anomalous API access patterns on Feb 15. Access was revoked within 2 hours of detection.
+  - Root cause: A misconfigured OAuth scope in a third-party integration partner's application allowed broader metadata access than intended.
+  - Actions taken: (1) Revoked all OAuth tokens for the affected integration, (2) Patched the scope validation logic, (3) Engaged an independent security firm (CrowdStrike) for forensic investigation, (4) Notified relevant data protection authorities.
+  - Ongoing actions: Mandatory security audit of all third-party integrations, implementing zero-trust access controls for all partner APIs, offering affected customers 2 years of free identity monitoring through IdentityGuard.
+
+  Requirements:
+  1. The email must come from the CEO (Jordan Park) personally, not a generic address.
+  2. Lead with what happened — no burying the lede or hiding behind vague language.
+  3. Be specific about what was and was NOT exposed. Customers need to know their documents and passwords are safe.
+  4. Include a clear timeline of events (when it happened, when discovered, when stopped).
+  5. Describe concrete remediation steps, not vague promises.
+  6. Provide actionable steps customers should take (review authorized apps, enable MFA if not already, enroll in identity monitoring).
+  7. Include a direct contact channel (dedicated email and phone line for questions).
+  8. The tone must balance accountability ("we failed to prevent this") with confidence ("here's exactly how we're fixing it"). Do NOT be defensive or minimize.
+  9. Keep it under 600 words.
+  10. Include a link placeholder for the detailed incident report: https://cloudvault.com/security/incident-2026-02
+
+expected:
+  response_contains:
+    - "OAuth"
+    - "metadata"
+    - "CrowdStrike"
+    - "MFA"
+    - "identity monitoring"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

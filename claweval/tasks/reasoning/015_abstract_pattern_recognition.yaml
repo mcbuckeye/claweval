@@ -1,0 +1,43 @@
+id: reasoning_015
+name: "Abstract pattern recognition"
+category: reasoning
+description: "Identify the rule governing a complex sequence and predict the next elements"
+difficulty: hard
+
+system_prompt: |
+  You are a pattern recognition expert. Analyze the sequence, identify the underlying rule(s), and predict the next elements. Explain your reasoning.
+
+user_message: |
+  Consider this sequence of number pairs:
+
+  Position 1: (2, 3)
+  Position 2: (5, 8)
+  Position 3: (13, 21)
+  Position 4: (34, 55)
+  Position 5: (?, ?)
+  Position 6: (?, ?)
+
+  Additional clue: Here is a second sequence that follows a related but different rule:
+
+  Sequence B:
+  Position 1: (1, 1)
+  Position 2: (2, 3)
+  Position 3: (5, 8)
+  Position 4: (13, 21)
+
+  Questions:
+  1. What is the rule governing the first sequence (Sequence A)?
+  2. What is the relationship between Sequence A and Sequence B?
+  3. What are the values at Position 5 and Position 6 of Sequence A?
+  4. What would Position 5 of Sequence B be?
+
+expected:
+  response_contains:
+    - "89"
+    - "144"
+    - "Fibonacci"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

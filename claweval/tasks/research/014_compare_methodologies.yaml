@@ -1,0 +1,60 @@
+id: research_014
+name: "Compare competing methodologies"
+category: research
+description: "Compare and contrast two competing methodologies with nuanced analysis of tradeoffs"
+difficulty: hard
+
+system_prompt: |
+  You are a methodology expert. Provide rigorous, balanced comparisons of competing approaches. Address theoretical foundations, practical tradeoffs, applicability conditions, and evidence quality for each methodology.
+
+tools:
+  - name: web_search
+    description: "Search the web for information"
+    parameters:
+      type: object
+      properties:
+        query:
+          type: string
+      required: ["query"]
+
+mock_tool_responses:
+  web_search:
+    response: "Retrieval-Augmented Generation (RAG) combines a retrieval system with a generative model, fetching relevant documents at inference time to ground responses in external knowledge. Fine-tuning modifies a pre-trained model's weights on domain-specific data to specialize its behavior. RAG keeps the base model frozen and relies on an external knowledge base, while fine-tuning bakes knowledge into model parameters. Hybrid approaches are increasingly common, using fine-tuning for task format and style while using RAG for factual grounding."
+
+user_message: |
+  Our company needs to specialize a large language model for our domain (pharmaceutical regulatory affairs). We are debating between two approaches: Retrieval-Augmented Generation (RAG) and domain-specific fine-tuning.
+
+  Provide a comprehensive comparison covering: (1) technical architecture differences, (2) implementation complexity and timeline, (3) cost structure, (4) performance characteristics, (5) maintenance burden, (6) data requirements, (7) failure modes, (8) regulatory compliance implications.
+
+  Here is our specific context:
+
+  COMPANY CONTEXT:
+  - 450-person pharmaceutical company with a 12-person data science team
+  - Domain corpus: 2.3 million regulatory documents (FDA submissions, EMA guidelines, clinical trial protocols, pharmacovigilance reports), totaling 4.8 TB
+  - Documents updated weekly — approximately 2,000 new or revised documents per month
+  - Use cases: (a) regulatory submission drafting, (b) compliance checking against current guidelines, (c) answering regulatory affairs team questions, (d) monitoring for regulatory changes
+  - Accuracy requirements: zero tolerance for fabricated regulatory citations; all claims must be traceable to source documents
+  - Current infrastructure: AWS cloud, 8x A100 GPUs available, existing Elasticsearch cluster
+  - Budget: $500K first year, $200K/year ongoing
+  - Timeline pressure: proof of concept needed within 3 months
+
+  STAKEHOLDER CONCERNS:
+  - Chief Medical Officer: "We cannot have the system hallucinate drug interactions or regulatory requirements"
+  - VP Regulatory Affairs: "Our guidelines change constantly — the system must reflect the latest FDA and EMA guidance within days, not months"
+  - CFO: "I need to understand the total cost of ownership over 3 years"
+  - CTO: "Our team has experience with Python and basic ML but has never trained a large model"
+
+expected:
+  response_contains:
+    - "hallucination"
+    - "traceability"
+    - "latency"
+    - "hybrid"
+    - "RAG"
+    - "fine-tuning"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    response_quality: 0.7

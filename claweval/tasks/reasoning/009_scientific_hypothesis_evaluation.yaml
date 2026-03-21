@@ -1,0 +1,36 @@
+id: reasoning_009
+name: "Scientific hypothesis evaluation"
+category: reasoning
+description: "Given experimental data, determine which of four competing theories best fits the observations"
+difficulty: hard
+
+system_prompt: |
+  You are a research scientist. Evaluate each hypothesis against ALL data points. A valid hypothesis must be consistent with every observation. Identify the single best-fitting theory.
+
+user_message: |
+  A biologist observes a newly discovered deep-sea organism and collects the following data:
+
+  Observation 1: The organism glows blue-green (bioluminescence) only when ambient pressure exceeds 200 atm.
+  Observation 2: Bioluminescence intensity is proportional to oxygen concentration in the water.
+  Observation 3: The organism does NOT glow when isolated from all other organisms, even at high pressure and oxygen.
+  Observation 4: Dead specimens of neighboring species, when placed near the organism, do not trigger glowing.
+  Observation 5: The organism's bioluminescence stops within 10 seconds of removing neighboring live organisms.
+  Observation 6: Chemical analysis shows luciferin is always present in the organism's cells regardless of conditions.
+
+  Hypotheses:
+  A) Pressure-activated luciferin synthesis: High pressure triggers luciferin production, which reacts with oxygen to glow.
+  B) Oxygen-gated luciferase activation: Oxygen directly activates the luciferase enzyme; pressure is required to maintain cell membrane integrity for the reaction.
+  C) Quorum-sensing-triggered bioluminescence: Live neighboring organisms emit a chemical signal that, combined with sufficient pressure (for signal diffusion) and oxygen (as a reactant), activates the luciferase enzyme acting on pre-existing luciferin.
+  D) Symbiotic bacterial bioluminescence: Bacteria living on neighboring organisms produce the light; the organism itself is not bioluminescent.
+
+  Which hypothesis (A, B, C, or D) is the only one consistent with ALL six observations? Explain which observations rule out each incorrect hypothesis.
+
+expected:
+  response_contains:
+    - "C"
+    - "quorum"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

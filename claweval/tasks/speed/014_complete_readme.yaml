@@ -1,0 +1,36 @@
+id: speed_014
+name: "Complete README.md generation"
+category: speed
+description: "Generate a full-featured README.md for a complex project — measures long-form structured markdown throughput"
+difficulty: hard
+
+system_prompt: |
+  You are an expert open-source maintainer. Write comprehensive, professional README files that follow best practices. Include all standard sections and use proper markdown formatting throughout.
+
+user_message: |
+  Write a complete README.md for an open-source Python library called `dataweaver` — a data pipeline orchestration framework. The README must include ALL of the following sections with substantial content in each:
+
+  1. **Title and Badges**: Project name with placeholder badges for PyPI version, build status, coverage, and license.
+  2. **Overview** (at least 100 words): Describe what dataweaver does — it provides a declarative DSL for building ETL pipelines with support for parallel execution, automatic retries, and schema validation.
+  3. **Features**: A bulleted list of at least 10 specific features.
+  4. **Installation**: Show pip install, conda install, and installation from source with optional dependencies (e.g., `pip install dataweaver[postgres,s3]`).
+  5. **Quick Start**: A complete working code example (at least 30 lines) showing how to define a pipeline with three stages (extract from CSV, transform with filtering and aggregation, load to PostgreSQL).
+  6. **Configuration**: Show a YAML configuration file example with at least 10 settings and explain each one.
+  7. **API Reference**: Document at least 5 core classes/functions with their signatures, parameters, and return types.
+  8. **Architecture**: Describe the internal architecture including the scheduler, executor, plugin system, and event bus.
+  9. **Contributing**: Guidelines including setup instructions, code style, testing requirements, and PR process.
+  10. **License**: MIT license note.
+
+expected:
+  response_contains:
+    - "dataweaver"
+    - "Installation"
+    - "Quick Start"
+    - "API Reference"
+    - "Contributing"
+    - "Architecture"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

@@ -1,0 +1,45 @@
+id: writing_008
+name: "API documentation with examples"
+category: writing
+description: "Write comprehensive API documentation with request/response examples for 5 endpoints"
+difficulty: hard
+
+system_prompt: |
+  You are a technical writer specializing in API documentation. You write clear, complete docs that developers can use without asking follow-up questions.
+
+user_message: |
+  Write API documentation for a Task Management API. Document these 5 endpoints with full details:
+
+  1. POST /api/v1/tasks — Create a new task
+  2. GET /api/v1/tasks — List tasks with filtering and pagination
+  3. GET /api/v1/tasks/{id} — Get a single task by ID
+  4. PATCH /api/v1/tasks/{id} — Update a task (partial update)
+  5. DELETE /api/v1/tasks/{id} — Delete a task (soft delete)
+
+  For EACH endpoint, include ALL of the following:
+  - HTTP method and path
+  - Description of what the endpoint does
+  - Authentication: All endpoints require a Bearer token in the Authorization header
+  - Request headers (Content-Type, Authorization)
+  - Path parameters (where applicable)
+  - Query parameters with types, defaults, and valid values (for the list endpoint: status=open|closed|all, priority=low|medium|high|critical, page=int default 1, per_page=int default 20 max 100, sort_by=created_at|updated_at|priority, order=asc|desc)
+  - Request body schema with field types, required/optional status, and validation rules
+  - A complete curl example with realistic sample data
+  - Success response with HTTP status code and full JSON body
+  - Error responses (at least 2 per endpoint: e.g., 401 Unauthorized, 404 Not Found, 422 Validation Error)
+  - The task object schema: id (uuid), title (string, 1-200 chars), description (string, optional, max 5000 chars), status (enum), priority (enum), assignee_id (uuid, optional), due_date (ISO 8601, optional), created_at, updated_at
+
+  Format using standard API doc conventions with clear section headers.
+
+expected:
+  response_contains:
+    - "Authorization"
+    - "Bearer"
+    - "curl"
+    - "422"
+    - "pagination"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

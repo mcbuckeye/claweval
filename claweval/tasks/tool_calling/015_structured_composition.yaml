@@ -1,0 +1,146 @@
+id: tool_calling_015
+name: "Compose tool results into structured final answer"
+category: tool_calling
+description: "Model must call multiple tools, extract specific data from each, and compose results into a structured report format"
+difficulty: hard
+
+system_prompt: |
+  You are a security audit assistant. When asked to produce a security report, you must
+  gather data from all relevant tools and compose a structured report with these sections:
+  1. Executive Summary (2-3 sentences)
+  2. Critical Findings (list each with severity, affected resource, and remediation)
+  3. Compliance Status (pass/fail for each standard checked)
+  4. Risk Score (numeric, out of 100)
+  Present the report in a clean, organized format.
+
+user_message: |
+  Generate a full security audit report for the prod-api-cluster. Check for
+  vulnerabilities, review access policies, and verify compliance status.
+
+tools:
+  - name: scan_vulnerabilities
+    description: "Run a vulnerability scan against a target cluster or service"
+    parameters:
+      type: object
+      properties:
+        target:
+          type: string
+          description: "Cluster or service identifier to scan"
+        scan_type:
+          type: string
+          enum: ["quick", "full", "compliance"]
+          description: "Type of vulnerability scan"
+        include_cve_details:
+          type: boolean
+          description: "Include full CVE descriptions"
+      required: ["target", "scan_type", "include_cve_details"]
+
+  - name: review_access_policies
+    description: "Audit IAM policies and access controls for a resource"
+    parameters:
+      type: object
+      properties:
+        resource:
+          type: string
+          description: "Resource identifier to audit"
+        check_types:
+          type: array
+          items:
+            type: string
+            enum: ["overprivileged_roles", "stale_credentials", "mfa_compliance", "public_access"]
+          description: "Types of access checks to perform"
+      required: ["resource", "check_types"]
+
+  - name: check_compliance
+    description: "Check compliance against security standards"
+    parameters:
+      type: object
+      properties:
+        resource:
+          type: string
+          description: "Resource to check"
+        standards:
+          type: array
+          items:
+            type: string
+            enum: ["SOC2", "PCI-DSS", "HIPAA", "ISO27001", "CIS"]
+          description: "Compliance standards to verify"
+      required: ["resource", "standards"]
+
+  - name: calculate_risk_score
+    description: "Calculate an aggregate risk score based on findings from other tools"
+    parameters:
+      type: object
+      properties:
+        vulnerability_count:
+          type: object
+          properties:
+            critical:
+              type: integer
+            high:
+              type: integer
+            medium:
+              type: integer
+            low:
+              type: integer
+          description: "Count of vulnerabilities by severity"
+        access_issues_count:
+          type: integer
+          description: "Number of access policy violations found"
+        compliance_failures:
+          type: integer
+          description: "Number of compliance standards failed"
+      required: ["vulnerability_count", "access_issues_count", "compliance_failures"]
+
+mock_tool_responses:
+  scan_vulnerabilities:
+    response: '{"target": "prod-api-cluster", "scan_type": "full", "total_findings": 12, "critical": [{"cve": "CVE-2025-31245", "description": "Remote code execution in ingress controller nginx 1.19.x", "affected": "ingress-nginx-controller", "remediation": "Upgrade to nginx 1.21.4+"}, {"cve": "CVE-2025-28190", "description": "Container escape via runc vulnerability", "affected": "all-worker-nodes", "remediation": "Patch runc to v1.1.13+"}], "high": [{"cve": "CVE-2025-22481", "description": "SQL injection in postgresql client library", "affected": "api-gateway-pod", "remediation": "Update libpq to 15.6+"}, {"cve": "CVE-2025-19832", "description": "Privilege escalation via service account token", "affected": "monitoring-namespace", "remediation": "Rotate tokens and restrict RBAC"}], "medium": 5, "low": 3}'
+  review_access_policies:
+    response: '{"resource": "prod-api-cluster", "findings": {"overprivileged_roles": [{"role": "deploy-bot", "issue": "Has cluster-admin but only needs namespace-level deploy rights", "recommendation": "Scope to payments and checkout namespaces only"}, {"role": "monitoring-sa", "issue": "Can read secrets cluster-wide", "recommendation": "Restrict to monitoring namespace"}], "stale_credentials": [{"credential": "ci-runner-token-legacy", "last_used": "2024-08-15", "age_days": 487, "recommendation": "Revoke immediately"}], "mfa_compliance": {"total_users": 24, "mfa_enabled": 21, "non_compliant": ["svc-jenkins", "svc-grafana", "intern-temp"]}, "public_access": [{"resource": "debug-endpoint /healthz/full", "issue": "Exposes internal metrics publicly", "recommendation": "Restrict to internal network"}]}}'
+  check_compliance:
+    response: '{"resource": "prod-api-cluster", "results": [{"standard": "SOC2", "status": "pass", "notes": "All controls satisfied"}, {"standard": "PCI-DSS", "status": "fail", "failures": ["Requirement 6.5: unpatched critical CVEs", "Requirement 8.3: MFA not enforced for all accounts"]}, {"standard": "HIPAA", "status": "pass", "notes": "Encryption at rest and in transit verified"}, {"standard": "ISO27001", "status": "pass", "notes": "Access controls within policy bounds"}, {"standard": "CIS", "status": "fail", "failures": ["CIS 5.2.1: privileged containers detected", "CIS 5.4.1: default namespace in use for workloads"]}]}'
+  calculate_risk_score:
+    response: '{"risk_score": 72, "rating": "HIGH", "top_factors": ["2 critical CVEs unpatched", "stale credentials older than 12 months", "PCI-DSS non-compliant"]}'
+
+expected:
+  tool_calls:
+    - name: scan_vulnerabilities
+      args:
+        target: "prod-api-cluster"
+        scan_type: "full"
+        include_cve_details: true
+    - name: review_access_policies
+      args:
+        resource: "prod-api-cluster"
+        check_types: ["overprivileged_roles", "stale_credentials", "mfa_compliance", "public_access"]
+    - name: check_compliance
+      args:
+        resource: "prod-api-cluster"
+        standards: ["SOC2", "PCI-DSS", "HIPAA", "ISO27001", "CIS"]
+    - name: calculate_risk_score
+      args:
+        vulnerability_count:
+          critical: 2
+          high: 2
+          medium: 5
+          low: 3
+        access_issues_count: 6
+        compliance_failures: 2
+  response_contains:
+    - "Executive Summary"
+    - "Critical Findings"
+    - "CVE-2025-31245"
+    - "CVE-2025-28190"
+    - "Compliance"
+    - "SOC2"
+    - "PCI-DSS"
+    - "fail"
+    - "Risk Score"
+    - "72"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    correct_params: 0.3
+    response_quality: 0.4

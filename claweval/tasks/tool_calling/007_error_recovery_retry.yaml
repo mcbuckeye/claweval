@@ -1,0 +1,85 @@
+id: tool_calling_007
+name: "Error recovery with modified params"
+category: tool_calling
+description: "Model must handle a tool error, interpret the error message, and retry with corrected parameters"
+difficulty: hard
+
+system_prompt: |
+  You are a data analyst assistant with access to tools. When a tool call fails,
+  read the error message carefully and adjust your parameters to fix the issue.
+  Do not give up after a single failure—retry with corrected inputs.
+
+user_message: |
+  Query the sales database for total revenue in Q4 2025 grouped by region. Use the analytics_query tool.
+
+tools:
+  - name: analytics_query
+    description: "Run an analytics query against the data warehouse"
+    parameters:
+      type: object
+      properties:
+        query:
+          type: string
+          description: "SQL query to execute"
+        database:
+          type: string
+          description: "Target database name"
+        timeout_seconds:
+          type: integer
+          description: "Query timeout in seconds (max 300)"
+        result_format:
+          type: string
+          enum: ["json", "csv", "table"]
+          description: "Format for results"
+      required: ["query", "database", "timeout_seconds", "result_format"]
+
+  - name: list_databases
+    description: "List all available databases and their schemas"
+    parameters:
+      type: object
+      properties:
+        filter:
+          type: string
+          description: "Optional filter pattern for database names"
+      required: []
+
+mock_tool_responses:
+  analytics_query:
+    responses:
+      - condition: "database == 'sales'"
+        response: '{"error": "DatabaseNotFoundError: database \"sales\" does not exist. Available databases: sales_prod_v2, sales_staging, marketing_prod. Hint: sales data moved to sales_prod_v2 on 2025-06-01."}'
+      - condition: "database == 'sales_prod_v2' and timeout_seconds <= 30"
+        response: '{"error": "QueryTimeoutError: query exceeded 30s limit. Estimated execution time: 145s. Hint: increase timeout or add LIMIT clause."}'
+      - condition: "database == 'sales_prod_v2' and timeout_seconds > 30"
+        response: '{"columns": ["region", "total_revenue"], "rows": [["North America", 4250000], ["Europe", 3180000], ["Asia Pacific", 2890000], ["Latin America", 1120000]], "execution_time_ms": 12400}'
+  list_databases:
+    response: '{"databases": ["sales_prod_v2", "sales_staging", "marketing_prod", "hr_internal"]}'
+
+expected:
+  tool_calls:
+    - name: analytics_query
+      args:
+        query: "SELECT region, SUM(revenue) AS total_revenue FROM sales WHERE quarter = 'Q4' AND year = 2025 GROUP BY region"
+        database: "sales"
+        timeout_seconds: 30
+        result_format: "json"
+    - name: analytics_query
+      args:
+        query: "SELECT region, SUM(revenue) AS total_revenue FROM sales WHERE quarter = 'Q4' AND year = 2025 GROUP BY region"
+        database: "sales_prod_v2"
+        timeout_seconds: 300
+        result_format: "json"
+  response_contains:
+    - "North America"
+    - "4250000"
+    - "Europe"
+    - "3180000"
+    - "Asia Pacific"
+    - "Latin America"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    correct_params: 0.3
+    response_quality: 0.4

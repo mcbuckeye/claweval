@@ -1,0 +1,76 @@
+id: research_008
+name: "Extract and normalize structured data from multiple formats"
+category: research
+description: "Extract and normalize structured data from 3 different source formats into a unified schema"
+difficulty: hard
+
+system_prompt: |
+  You are a data engineer specializing in data normalization. Extract structured records from heterogeneous source formats and produce a unified, consistent output. Resolve naming inconsistencies, unit mismatches, and formatting differences.
+
+user_message: |
+  Extract and normalize all employee records from the three sources below into a single unified JSON array. Each record should have: name, department, title, salary_usd (annual, normalized to USD), start_date (ISO 8601), location, employment_type.
+
+  SOURCE 1 — CSV dump from HR system:
+  ```
+  emp_name,dept_code,role,annual_comp,hire_date,office,type
+  "Chen, Maria",ENG,Senior Software Engineer,145000,03/15/2019,San Francisco,FT
+  "Okafor, Emeka",ENG,Staff Engineer,178000,11/01/2017,San Francisco,FT
+  "Johansson, Kira",MKT,Marketing Director,162000,06/22/2020,New York,FT
+  "Petrov, Alexei",ENG,DevOps Lead,138000,01/10/2021,Remote-EU,FT
+  "Watanabe, Hiro",SALES,Account Executive,95000,09/05/2022,Tokyo,FT
+  ```
+
+  SOURCE 2 — XML from contractor management platform:
+  ```xml
+  <contractors>
+    <contractor>
+      <full_name>Priya Sharma</full_name>
+      <department>Engineering</department>
+      <position>ML Consultant</position>
+      <monthly_rate currency="USD">14500</monthly_rate>
+      <contract_start>2023-02-01</contract_start>
+      <work_location>Bangalore, India</work_location>
+    </contractor>
+    <contractor>
+      <full_name>Lucas Fernandes</full_name>
+      <department>Design</department>
+      <position>UX Research Contractor</position>
+      <monthly_rate currency="BRL">42000</monthly_rate>
+      <contract_start>2023-07-15</contract_start>
+      <work_location>São Paulo, Brazil</work_location>
+    </contractor>
+    <contractor>
+      <full_name>Sophie Dubois</full_name>
+      <department>Marketing</department>
+      <position>Content Strategy Consultant</position>
+      <monthly_rate currency="EUR">9800</monthly_rate>
+      <contract_start>2024-01-08</contract_start>
+      <work_location>Paris, France</work_location>
+    </contractor>
+  </contractors>
+  ```
+
+  SOURCE 3 — Markdown table from recent acquisitions integration doc:
+  ```
+  | Name | Team | Job Title | Compensation | Joined | Based In | Status |
+  |------|------|-----------|-------------|--------|----------|--------|
+  | Aisha Mohamud | Eng – Backend | Principal Engineer | £142,000/yr | 2018-04-12 | London | Full-time |
+  | Tomasz Kowalski | Eng – Infra | SRE Manager | PLN 348,000/yr | 2020-08-30 | Warsaw | Full-time |
+  ```
+
+  Use the following exchange rates for normalization: 1 EUR = 1.08 USD, 1 BRL = 0.20 USD, 1 GBP = 1.26 USD, 1 PLN = 0.25 USD.
+
+  Normalize department names to: Engineering, Marketing, Sales, Design. Normalize employment_type to: full-time, contractor. Format all names as "Firstname Lastname".
+
+expected:
+  response_contains:
+    - "Maria Chen"
+    - "contractor"
+    - "ISO 8601"
+    - "Engineering"
+    - "full-time"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

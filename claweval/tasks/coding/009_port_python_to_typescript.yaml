@@ -1,0 +1,126 @@
+id: coding_009
+name: "Port a Python function to TypeScript"
+category: coding
+description: "Translate a complex Python data-processing pipeline to idiomatic TypeScript"
+difficulty: hard
+
+system_prompt: |
+  You are an expert software engineer fluent in both Python and TypeScript with deep knowledge of type systems, generics, and idiomatic patterns in both languages.
+
+user_message: |
+  Port the following Python module to idiomatic TypeScript. Preserve all behavior exactly, but use TypeScript idioms (interfaces, generics, union types, readonly where appropriate). Do NOT use `any` type — everything must be fully typed.
+
+  ```python
+  from dataclasses import dataclass, field
+  from typing import TypeVar, Generic, Callable, Optional, List, Dict, Union
+  from enum import Enum
+  from datetime import datetime
+
+  class Priority(Enum):
+      LOW = "low"
+      MEDIUM = "medium"
+      HIGH = "high"
+      CRITICAL = "critical"
+
+  T = TypeVar("T")
+
+  @dataclass
+  class Result(Generic[T]):
+      success: bool
+      data: Optional[T] = None
+      error: Optional[str] = None
+      timestamp: datetime = field(default_factory=datetime.utcnow)
+
+      def map(self, fn: Callable[[T], T]) -> "Result[T]":
+          if self.success and self.data is not None:
+              try:
+                  return Result(success=True, data=fn(self.data))
+              except Exception as e:
+                  return Result(success=False, error=str(e))
+          return self
+
+      def flat_map(self, fn: Callable[[T], "Result[T]"]) -> "Result[T]":
+          if self.success and self.data is not None:
+              return fn(self.data)
+          return self
+
+  @dataclass
+  class Task:
+      id: str
+      title: str
+      priority: Priority
+      tags: List[str] = field(default_factory=list)
+      metadata: Dict[str, Union[str, int, bool]] = field(default_factory=dict)
+      subtasks: List["Task"] = field(default_factory=list)
+      completed: bool = False
+
+  class TaskProcessor:
+      def __init__(self, tasks: List[Task]):
+          self._tasks = tasks
+          self._filters: List[Callable[[Task], bool]] = []
+
+      def filter_by_priority(self, min_priority: Priority) -> "TaskProcessor":
+          priority_order = list(Priority)
+          min_index = priority_order.index(min_priority)
+          self._filters.append(lambda t: priority_order.index(t.priority) >= min_index)
+          return self
+
+      def filter_by_tag(self, tag: str) -> "TaskProcessor":
+          self._filters.append(lambda t: tag in t.tags)
+          return self
+
+      def execute(self) -> Result[List[Task]]:
+          try:
+              result = self._tasks
+              for f in self._filters:
+                  result = [t for t in result if f(t)]
+              # Recursively include subtasks that match
+              expanded = []
+              for task in result:
+                  expanded.append(task)
+                  expanded.extend(self._collect_matching_subtasks(task))
+              return Result(success=True, data=expanded)
+          except Exception as e:
+              return Result(success=False, error=str(e))
+
+      def _collect_matching_subtasks(self, task: Task) -> List[Task]:
+          matching = []
+          for sub in task.subtasks:
+              if all(f(sub) for f in self._filters):
+                  matching.append(sub)
+              matching.extend(self._collect_matching_subtasks(sub))
+          return matching
+
+      def group_by_priority(self) -> Result[Dict[str, List[Task]]]:
+          exec_result = self.execute()
+          def _group(tasks: List[Task]) -> Dict[str, List[Task]]:
+              groups: Dict[str, List[Task]] = {}
+              for task in tasks:
+                  key = task.priority.value
+                  groups.setdefault(key, []).append(task)
+              return groups
+          return exec_result.map(_group)
+  ```
+
+  Requirements:
+  - Use TypeScript `enum` for Priority
+  - Use generics for Result<T>
+  - Use `interface` for Task (with recursive subtasks typing)
+  - Implement the fluent/chainable API on TaskProcessor
+  - Use `readonly` for fields that should not be mutated after construction
+  - Include proper error handling in map/flatMap
+  - No use of `any` — fully typed
+
+expected:
+  response_contains:
+    - "enum Priority"
+    - "interface"
+    - "Result<T>"
+    - "readonly"
+    - "flatMap"
+    - "filter"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

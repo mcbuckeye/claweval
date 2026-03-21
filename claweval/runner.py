@@ -12,7 +12,7 @@ from openai import OpenAI
 from claweval.config import ModelConfig, Settings
 from claweval.task_loader import Task
 from claweval.mock_tools import MockToolExecutor, ToolCall
-from claweval.scorer import score_task, ScoreResult
+from claweval.scorer import score_task, score_task_hybrid, ScoreResult
 
 
 @dataclass
@@ -25,6 +25,8 @@ class TimingInfo:
     prompt_tokens: int = 0
     completion_tokens: int = 0
     tokens_per_second: float = 0.0
+    chunk_count: int = 0
+    estimated_gen_tok_s: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -34,6 +36,8 @@ class TimingInfo:
             "prompt_tokens": self.prompt_tokens,
             "completion_tokens": self.completion_tokens,
             "tokens_per_second": round(self.tokens_per_second, 2),
+            "chunk_count": self.chunk_count,
+            "estimated_gen_tok_s": round(self.estimated_gen_tok_s, 2),
         }
 
 
@@ -89,6 +93,8 @@ def run_task(
     model: ModelConfig,
     settings: Settings,
     client: OpenAI | None = None,
+    scoring_mode: str = "deterministic",
+    judge_scorer: Any = None,
 ) -> TaskResult:
     """Run a single task against a single model."""
     result = TaskResult(task_id=task.id, model_id=model.id)
@@ -122,16 +128,22 @@ def run_task(
             response_chunks: list[str] = []
             turn_tool_calls: dict[int, dict[str, Any]] = {}
             usage_data: dict[str, int] = {}
+            chunk_count = 0
 
             for chunk in stream:
                 if first_token_time is None:
                     first_token_time = time.perf_counter()
+                chunk_count += 1
 
                 choice = chunk.choices[0] if chunk.choices else None
                 if choice and choice.delta:
-                    # Text content
+                    # Text content (check both content and reasoning_content for thinking models)
                     if choice.delta.content:
                         response_chunks.append(choice.delta.content)
+                    # Capture reasoning/thinking content as fallback
+                    reasoning = getattr(choice.delta, "reasoning_content", None)
+                    if reasoning and not choice.delta.content:
+                        response_chunks.append(reasoning)
 
                     # Tool calls
                     if choice.delta.tool_calls:
@@ -212,22 +224,37 @@ def run_task(
         # Compute timing
         wall_ms = (end_time - start_time) * 1000
         ttft_ms = ((first_token_time - start_time) * 1000) if first_token_time else 0
+        gen_time_ms = wall_ms - ttft_ms if ttft_ms > 0 else wall_ms
+        comp_tokens = usage_data.get("completion_tokens", 0)
+
+        # Estimate tok/s from chunks as fallback if no usage data
+        estimated_gen_tok_s = 0.0
+        if comp_tokens and gen_time_ms > 0:
+            estimated_gen_tok_s = comp_tokens / (gen_time_ms / 1000)
+        elif chunk_count > 0 and gen_time_ms > 0:
+            # Rough estimate: ~1.3 tokens per chunk on average
+            estimated_gen_tok_s = (chunk_count * 1.3) / (gen_time_ms / 1000)
 
         result.timing = TimingInfo(
             wall_clock_ms=wall_ms,
             ttft_ms=ttft_ms,
             total_tokens=usage_data.get("total_tokens", 0),
             prompt_tokens=usage_data.get("prompt_tokens", 0),
-            completion_tokens=usage_data.get("completion_tokens", 0),
+            completion_tokens=comp_tokens,
             tokens_per_second=(
-                usage_data.get("completion_tokens", 0) / (wall_ms / 1000)
-                if wall_ms > 0 and usage_data.get("completion_tokens", 0)
+                comp_tokens / (wall_ms / 1000)
+                if wall_ms > 0 and comp_tokens
                 else 0
             ),
+            chunk_count=chunk_count,
+            estimated_gen_tok_s=estimated_gen_tok_s,
         )
 
         # Score the result
-        result.score = score_task(task, all_tool_calls, result.response_text)
+        result.score = score_task_hybrid(
+            task, all_tool_calls, result.response_text,
+            judge_scorer=judge_scorer, scoring_mode=scoring_mode,
+        )
 
     except Exception as e:
         result.error = str(e)
@@ -240,13 +267,21 @@ def run_tasks(
     model: ModelConfig,
     settings: Settings,
     on_complete: Any = None,
+    scoring_mode: str = "deterministic",
+    judge_scorer: Any = None,
 ) -> list[TaskResult]:
     """Run multiple tasks sequentially against a model."""
     client = OpenAI(**model.client_kwargs())
     results: list[TaskResult] = []
 
     for task in tasks:
-        task_result = run_task(task, model, settings, client)
+        try:
+            task_result = run_task(
+                task, model, settings, client,
+                scoring_mode=scoring_mode, judge_scorer=judge_scorer,
+            )
+        except Exception as e:
+            task_result = TaskResult(task_id=task.id, model_id=model.id, error=str(e))
         results.append(task_result)
 
         if on_complete:

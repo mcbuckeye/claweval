@@ -1,0 +1,34 @@
+id: speed_009
+name: "Full CRUD module code generation"
+category: speed
+description: "Generate a complete CRUD module with models, routes, and validation (~300 lines) — measures large code generation throughput"
+difficulty: hard
+
+system_prompt: |
+  You are a senior backend engineer. Write production-quality Python code with type hints, docstrings, error handling, and logging. Use modern best practices.
+
+user_message: |
+  Write a complete Python CRUD module for a "Project" resource using FastAPI and SQLAlchemy. The module should be approximately 300 lines and must include all of the following:
+
+  1. A SQLAlchemy model class `Project` with fields: id (UUID primary key), name (string, required), description (text, optional), status (enum: active/archived/draft), owner_id (UUID foreign key), created_at (datetime), updated_at (datetime).
+  2. Pydantic schemas: `ProjectCreate`, `ProjectUpdate`, `ProjectResponse`, and `ProjectListResponse` (with pagination metadata).
+  3. A service layer class `ProjectService` with methods: create_project, get_project, list_projects (with filtering by status and pagination), update_project, delete_project (soft delete), and restore_project.
+  4. A FastAPI router with endpoints for all CRUD operations plus a search endpoint that filters by name substring.
+  5. Proper error handling with custom exceptions (ProjectNotFoundError, ProjectAlreadyExistsError) and HTTP exception handlers.
+  6. Logging throughout the service layer.
+
+  Write everything in a single file. Include all necessary imports.
+
+expected:
+  response_contains:
+    - "class Project"
+    - "class ProjectService"
+    - "def create_project"
+    - "def delete_project"
+    - "ProjectNotFoundError"
+    - "APIRouter"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

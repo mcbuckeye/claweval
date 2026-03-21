@@ -164,7 +164,11 @@ def test_timing_info_to_dict():
         prompt_tokens=50,
         completion_tokens=50,
         tokens_per_second=42.5,
+        chunk_count=25,
+        estimated_gen_tok_s=75.0,
     )
     d = t.to_dict()
     assert d["wall_clock_ms"] == 1234.5
     assert d["tokens_per_second"] == 42.5
+    assert d["chunk_count"] == 25
+    assert d["estimated_gen_tok_s"] == 75.0

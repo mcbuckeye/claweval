@@ -1,0 +1,39 @@
+id: writing_007
+name: "Sensitive HR performance email"
+category: writing
+description: "Draft a sensitive HR email addressing a performance concern with empathetic but direct tone"
+difficulty: hard
+
+system_prompt: |
+  You are an experienced HR communications specialist who balances empathy with clarity when addressing sensitive workplace matters.
+
+user_message: |
+  Draft an email from a direct manager (Sarah Chen, Engineering Manager) to an employee (Marcus Rivera, Senior Software Engineer) addressing a performance concern. Here is the context:
+
+  - Marcus has been at the company for 3 years and was previously a strong performer who received "Exceeds Expectations" ratings.
+  - Over the past 3 months, his performance has noticeably declined: missed 2 sprint commitments, code review turnaround went from 1 day to 5+ days, and he has been absent from 4 standup meetings without notice.
+  - A peer (anonymously) raised concern that Marcus seems disengaged and overwhelmed.
+  - Sarah wants to set up a 1:1 meeting to discuss this, NOT to issue a formal warning. The goal is supportive, not punitive.
+  - The company has an Employee Assistance Program (EAP) that offers free counseling and support.
+
+  Requirements:
+  1. The email must be warm and empathetic, not accusatory. Use "I've noticed" language, not "you failed to."
+  2. Reference specific observations without naming the anonymous peer.
+  3. Clearly state this is NOT a disciplinary action.
+  4. Offer concrete support (EAP, workload adjustment, flexible schedule).
+  5. Propose a private 1:1 meeting with 2-3 time options.
+  6. Keep the email under 300 words — concise but caring.
+  7. The tone should make Marcus feel safe to be honest about what's going on.
+
+expected:
+  response_contains:
+    - "EAP"
+    - "support"
+    - "noticed"
+    - "1:1"
+    - "workload"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

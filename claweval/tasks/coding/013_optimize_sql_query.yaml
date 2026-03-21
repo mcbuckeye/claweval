@@ -1,0 +1,119 @@
+id: coding_013
+name: "Optimize a slow SQL query"
+category: coding
+description: "Analyze EXPLAIN output and schema to optimize a slow SQL query with multiple joins"
+difficulty: hard
+
+system_prompt: |
+  You are an expert database performance engineer specializing in PostgreSQL query optimization.
+
+user_message: |
+  The following query runs in 12 seconds on a table with 5 million orders. Optimize it to run under 100ms. You are given the schema, the query, and the EXPLAIN ANALYZE output.
+
+  Schema:
+  ```sql
+  CREATE TABLE customers (
+      id SERIAL PRIMARY KEY,
+      email VARCHAR(255),
+      tier VARCHAR(20),      -- 'free', 'pro', 'enterprise'
+      created_at TIMESTAMP
+  );  -- 500K rows
+
+  CREATE TABLE orders (
+      id SERIAL PRIMARY KEY,
+      customer_id INTEGER REFERENCES customers(id),
+      status VARCHAR(20),    -- 'pending', 'completed', 'cancelled', 'refunded'
+      total_amount NUMERIC(10,2),
+      region VARCHAR(50),
+      created_at TIMESTAMP,
+      completed_at TIMESTAMP
+  );  -- 5M rows, no indexes except PK
+
+  CREATE TABLE order_items (
+      id SERIAL PRIMARY KEY,
+      order_id INTEGER REFERENCES orders(id),
+      product_id INTEGER,
+      quantity INTEGER,
+      unit_price NUMERIC(10,2)
+  );  -- 20M rows, no indexes except PK
+
+  CREATE TABLE products (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255),
+      category VARCHAR(100),
+      is_active BOOLEAN DEFAULT true
+  );  -- 10K rows
+  ```
+
+  Slow query:
+  ```sql
+  SELECT
+      c.tier,
+      p.category,
+      o.region,
+      COUNT(DISTINCT o.id) AS order_count,
+      SUM(oi.quantity * oi.unit_price) AS revenue,
+      AVG(EXTRACT(EPOCH FROM (o.completed_at - o.created_at))) AS avg_fulfillment_secs
+  FROM orders o
+  JOIN customers c ON c.id = o.customer_id
+  JOIN order_items oi ON oi.order_id = o.id
+  JOIN products p ON p.id = oi.product_id
+  WHERE o.status = 'completed'
+    AND o.created_at >= NOW() - INTERVAL '90 days'
+    AND p.is_active = true
+    AND c.tier IN ('pro', 'enterprise')
+  GROUP BY c.tier, p.category, o.region
+  ORDER BY revenue DESC
+  LIMIT 50;
+  ```
+
+  EXPLAIN ANALYZE output:
+  ```
+  Limit  (cost=892341.23..892341.35 rows=50 width=120) (actual time=12034.521..12034.538 rows=50 loops=1)
+    ->  Sort  (cost=892341.23..892389.45 rows=19289 width=120) (actual time=12034.519..12034.530 rows=50 loops=1)
+          Sort Key: (sum((oi.quantity * oi.unit_price))) DESC
+          Sort Method: top-N heapsort  Memory: 35kB
+          ->  HashAggregate  (cost=891245.67..891438.56 rows=19289 width=120) (actual time=12028.345..12031.234 rows=8923 loops=1)
+                Group Key: c.tier, p.category, o.region
+                ->  Hash Join  (cost=15234.56..878901.23 rows=2468889 width=88) (actual time=234.567..11456.789 rows=2345678 loops=1)
+                      Hash Cond: (oi.product_id = p.id)
+                      ->  Hash Join  (cost=14987.12..812345.67 rows=4937778 width=72) (actual time=230.123..9876.543 rows=4567890 loops=1)
+                            Hash Cond: (o.customer_id = c.id)
+                            ->  Hash Join  (cost=12345.00..756789.12 rows=12344445 width=52) (actual time=123.456..8765.432 rows=11234567 loops=1)
+                                  Hash Cond: (oi.order_id = o.id)
+                                  ->  Seq Scan on order_items oi  (cost=0.00..345678.00 rows=20000000 width=20) (actual time=0.012..3456.789 rows=20000000 loops=1)
+                                  ->  Hash  (cost=10234.00..10234.00 rows=617200 width=40) (actual time=123.321..123.321 rows=617200 loops=1)
+                                        ->  Seq Scan on orders o  (cost=0.00..10234.00 rows=617200 width=40) (actual time=0.010..89.123 rows=617200 loops=1)
+                                              Filter: ((status = 'completed') AND (created_at >= (now() - '90 days'::interval)))
+                                              Rows Removed by Filter: 4382800
+                            ->  Hash  (cost=2345.00..2345.00 rows=119456 width=28) (actual time=106.543..106.543 rows=119456 loops=1)
+                                  ->  Seq Scan on customers c  (cost=0.00..2345.00 rows=119456 width=28) (actual time=0.008..78.901 rows=119456 loops=1)
+                                        Filter: (tier = ANY ('{pro,enterprise}'::text[]))
+                                        Rows Removed by Filter: 380544
+                      ->  Hash  (cost=198.00..198.00 rows=3965 width=24) (actual time=4.321..4.321 rows=3965 loops=1)
+                            ->  Seq Scan on products p  (cost=0.00..198.00 rows=3965 width=24) (actual time=0.005..2.345 rows=3965 loops=1)
+                                  Filter: is_active
+                                  Rows Removed by Filter: 6035
+  Planning Time: 2.345 ms
+  Execution Time: 12034.678 ms
+  ```
+
+  Provide:
+  1. Analysis of the bottlenecks visible in the EXPLAIN output
+  2. The exact CREATE INDEX statements needed (with reasoning for each)
+  3. Any query rewrites that would help
+  4. An estimate of the expected improvement and why
+  5. Whether a materialized view or partial index would be appropriate here
+
+expected:
+  response_contains:
+    - "CREATE INDEX"
+    - "order_items"
+    - "customer_id"
+    - "Seq Scan"
+    - "partial index"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

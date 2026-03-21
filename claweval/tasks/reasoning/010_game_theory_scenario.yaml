@@ -1,0 +1,37 @@
+id: reasoning_010
+name: "Game theory scenario"
+category: reasoning
+description: "Analyze a modified prisoner's dilemma with asymmetric payoffs and a third option"
+difficulty: hard
+
+system_prompt: |
+  You are a game theory expert. Analyze the game using dominance and Nash equilibrium concepts. Show the payoff analysis and identify all Nash equilibria.
+
+user_message: |
+  Two competing cloud providers (Alpha and Beta) are deciding their pricing strategy. Each has three options: Undercut (U), Match (M), or Premium (P). Payoffs are (Alpha, Beta) in millions of dollars:
+
+                Beta: U       Beta: M       Beta: P
+  Alpha: U    (-2, -3)      (8, -1)       (10, 0)
+  Alpha: M    (-1, 7)       (4, 4)        (6, 3)
+  Alpha: P    (0, 9)        (3, 5)        (5, 5)
+
+  Rules:
+  - Both players choose simultaneously.
+  - Each player is rational and seeks to maximize their own payoff.
+  - Both players know the full payoff matrix.
+
+  Questions:
+  1. Does either player have a strictly dominated strategy? If so, which?
+  2. After eliminating any dominated strategies, what are the remaining strategies?
+  3. What is/are the Nash equilibrium/equilibria of this game?
+  4. What is the payoff at each Nash equilibrium?
+
+expected:
+  response_contains:
+    - "Match"
+    - "4, 4"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

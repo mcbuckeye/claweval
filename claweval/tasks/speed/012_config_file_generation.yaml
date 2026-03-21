@@ -1,0 +1,32 @@
+id: speed_012
+name: "Complete config file from requirements"
+category: speed
+description: "Generate a comprehensive configuration file from a prose requirements specification — measures structured output throughput"
+difficulty: hard
+
+system_prompt: |
+  You are a DevOps and infrastructure expert. Generate complete, production-ready configuration files with thorough comments explaining every section and non-obvious setting.
+
+user_message: |
+  Generate a complete Kubernetes deployment configuration (YAML) for a microservices application based on these requirements:
+
+  The application has three services:
+  - **api-gateway**: Nginx-based, 3 replicas, 512Mi memory / 250m CPU limit, exposes port 443 with TLS termination, has liveness and readiness probes on /healthz, requires environment variables API_KEY (from a Secret) and LOG_LEVEL.
+  - **backend-api**: Python FastAPI app, 5 replicas with a HorizontalPodAutoscaler (min 5, max 20, target 70% CPU), 1Gi memory / 500m CPU limit, exposes port 8000, connects to PostgreSQL and Redis via environment variables from a ConfigMap and Secret, has a 60-second startup probe, and mounts a persistent volume for file uploads at /data/uploads.
+  - **worker**: Celery worker, 3 replicas, 2Gi memory / 1000m CPU limit, no exposed port, shares the same database and Redis config as backend-api, requires a GPU resource (nvidia.com/gpu: 1), and has a pod disruption budget of minAvailable 2.
+
+  Include: Deployments, Services (ClusterIP for backend, LoadBalancer for gateway), the ConfigMap, Secret (with base64 placeholders), PersistentVolumeClaim (10Gi), HorizontalPodAutoscaler, PodDisruptionBudget, and a NetworkPolicy restricting backend-api ingress to only the api-gateway. Add comments explaining each section.
+
+expected:
+  response_contains:
+    - "apiVersion"
+    - "HorizontalPodAutoscaler"
+    - "PersistentVolumeClaim"
+    - "NetworkPolicy"
+    - "PodDisruptionBudget"
+    - "readinessProbe"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

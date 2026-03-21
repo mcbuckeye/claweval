@@ -1,0 +1,40 @@
+id: writing_014
+name: "Technical blog post on complex concept"
+category: writing
+description: "Write a technical blog post explaining a complex concept in simple, accessible terms"
+difficulty: hard
+
+system_prompt: |
+  You are a technical writer who makes complex distributed systems concepts accessible to a broad developer audience, similar to writing for the Cloudflare or Fly.io engineering blog.
+
+user_message: |
+  Write a technical blog post titled "How Database Transactions Actually Work: From BEGIN to COMMIT" aimed at mid-level software engineers who use databases daily but don't understand the internals.
+
+  The post must cover ALL of the following topics:
+  1. **What happens when you type BEGIN** — Explain transaction IDs, the write-ahead log (WAL), and how the database starts tracking changes.
+  2. **MVCC (Multi-Version Concurrency Control)** — Explain how PostgreSQL allows multiple transactions to see different versions of the same row without locking. Use a concrete example: two users updating the same bank account balance simultaneously.
+  3. **Isolation Levels** — Explain all four levels (Read Uncommitted, Read Committed, Repeatable Read, Serializable) with practical examples of what anomalies each prevents. Include dirty reads, non-repeatable reads, and phantom reads.
+  4. **What happens during COMMIT** — The WAL flush, fsync, and why databases can guarantee durability even if the server crashes 1 millisecond after COMMIT returns.
+  5. **Deadlocks** — How they occur, how the database detects them (wait-for graph), and how to avoid them in application code.
+  6. **Practical advice** — Common mistakes developers make with transactions (holding transactions open too long, doing HTTP calls inside transactions, not understanding default isolation levels).
+
+  Requirements:
+  - Write in a conversational but technically accurate tone. Use "you" to address the reader.
+  - Include at least 4 SQL code examples that illustrate the concepts.
+  - Use at least 2 analogies to explain abstract concepts (e.g., comparing WAL to a journal, MVCC to document version history).
+  - Include a "Key Takeaways" section at the end with 5-7 bullet points.
+  - The post should be 1500-2000 words. Thorough but not padded.
+  - Add a section on "When NOT to use transactions" (e.g., read-only analytics, high-throughput event logging).
+
+expected:
+  response_contains:
+    - "WAL"
+    - "MVCC"
+    - "isolation"
+    - "deadlock"
+    - "fsync"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

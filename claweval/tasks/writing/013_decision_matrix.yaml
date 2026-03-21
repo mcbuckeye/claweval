@@ -1,0 +1,57 @@
+id: writing_013
+name: "Decision matrix document"
+category: writing
+description: "Create a structured decision matrix document with detailed pros, cons, and scoring"
+difficulty: hard
+
+system_prompt: |
+  You are a solutions architect who creates rigorous, data-driven decision documents that help teams make well-informed technology choices.
+
+user_message: |
+  Create a decision matrix document for choosing a real-time communication infrastructure for our platform. We are building a collaborative design tool (like Figma) and need to decide on the technology for real-time synchronization of user actions (cursor movements, shape editing, text changes, comments).
+
+  Context and Requirements:
+  - Expected scale: 500,000 concurrent users, up to 200 users per document session
+  - Latency requirement: < 50ms for cursor updates, < 200ms for document mutations
+  - Conflict resolution: Multiple users editing the same object simultaneously must be handled gracefully
+  - Offline support: Users must be able to work offline and sync changes when reconnected
+  - Infrastructure: We run on AWS, team has strong experience with TypeScript/Node.js and Go
+  - Budget: $50K/month infrastructure ceiling for real-time infrastructure
+  - Team size: 6 engineers available to build and maintain this
+
+  Evaluate these 4 options:
+  1. **Custom WebSocket Server** — Build our own using ws (Node.js) or gorilla/websocket (Go), with Redis Pub/Sub for horizontal scaling
+  2. **Liveblocks** — Managed SaaS for real-time collaboration with built-in CRDT support
+  3. **Yjs + y-websocket** — Open-source CRDT library with custom sync server
+  4. **Ably** — Managed real-time messaging platform with pub/sub channels
+
+  For EACH option, evaluate against these criteria (score 1-5 for each):
+  - Latency performance at scale
+  - Conflict resolution capability (OT/CRDT support)
+  - Offline support quality
+  - Operational complexity (lower is better)
+  - Cost at target scale
+  - Time to production (estimated weeks)
+  - Team skill alignment
+  - Vendor lock-in risk (lower is better)
+
+  The document must include:
+  1. An executive summary with the recommended option and one-sentence justification
+  2. The scoring matrix as a formatted table
+  3. For each option: a detailed analysis paragraph covering pros (at least 3), cons (at least 3), and estimated cost breakdown
+  4. A risk analysis section for the recommended option
+  5. A dissenting view — argue the strongest case AGAINST your recommendation
+  6. An implementation timeline for the recommended option (broken into 4-week milestones)
+
+expected:
+  response_contains:
+    - "CRDT"
+    - "WebSocket"
+    - "latency"
+    - "conflict resolution"
+    - "vendor lock-in"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

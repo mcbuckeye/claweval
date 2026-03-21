@@ -1,0 +1,49 @@
+id: research_010
+name: "Generate a literature review outline from abstracts"
+category: research
+description: "Generate a structured literature review outline by analyzing and thematically grouping research abstracts"
+difficulty: hard
+
+system_prompt: |
+  You are an academic research assistant. Analyze provided abstracts, identify themes and methodological trends, and produce a structured literature review outline with thematic groupings, identified gaps, and suggested narrative flow.
+
+user_message: |
+  Based on the following 8 abstracts, generate a detailed literature review outline on "Large Language Models in Healthcare." Group the papers thematically, identify methodological trends, note contradictions, and highlight research gaps.
+
+  ABSTRACT 1 (Zhang et al., 2024, Nature Medicine):
+  "We evaluated GPT-4 on 1,200 clinical vignettes from USMLE Step 2 CK and Step 3. The model achieved 87.3% accuracy, surpassing the passing threshold by 15 percentage points. Performance was strongest in pharmacology (92%) and weakest in pediatric emergencies (71%). Error analysis revealed that 43% of mistakes involved misinterpreting temporal relationships in patient histories. We conclude that LLMs show promise as clinical decision support tools but require significant guardrails for time-sensitive scenarios."
+
+  ABSTRACT 2 (Patel & Kumar, 2024, JAMA Internal Medicine):
+  "This prospective cohort study compared diagnostic suggestions from an LLM-based clinical assistant (n=3,400 patient encounters) against attending physician diagnoses across 12 emergency departments. The LLM system achieved concordance of 78.2% with final diagnoses versus 82.1% for attending physicians. However, the LLM flagged 23 cases of rare conditions that were initially missed by the treating team, 19 of which were confirmed on follow-up. Critically, the LLM showed lower accuracy for patients with atypical presentations and comorbidities (concordance dropped to 61.4%)."
+
+  ABSTRACT 3 (Okonkwo et al., 2024, Lancet Digital Health):
+  "We investigated racial and ethnic bias in three leading medical LLMs using 2,800 clinical scenarios systematically varied by patient demographics. All three models showed statistically significant disparities: pain management recommendations were 23% less aggressive for Black patients (p<0.001), mental health referrals were 31% lower for Hispanic patients (p<0.001), and cardiac workup recommendations were 18% less thorough for female patients (p=0.003). Debiasing techniques (counterfactual data augmentation, fairness constraints) reduced but did not eliminate these disparities."
+
+  ABSTRACT 4 (Andersson & Lindström, 2024, BMJ Quality & Safety):
+  "We conducted a mixed-methods study of 340 physicians across 5 hospitals who used an LLM-based documentation assistant for 6 months. Quantitative results: clinical note completion time decreased by 37%, documentation quality scores improved by 12%. Qualitative findings: 72% of physicians reported reduced burnout symptoms, but 41% expressed concern about over-reliance on AI-generated text, and 28% reported finding errors in AI-drafted notes that could have led to clinical misunderstandings if not caught. We identify 'automation complacency' as a significant emerging risk."
+
+  ABSTRACT 5 (Chen et al., 2023, npj Digital Medicine):
+  "We fine-tuned a 70B-parameter LLM on 2.1 million de-identified clinical notes for radiology report generation. On a held-out test set of 5,000 chest X-rays, the model achieved 94.2% concordance with radiologist reports for common findings. However, concordance dropped to 67.8% for rare findings (<1% prevalence in training data). The model exhibited a systematic bias toward over-reporting common findings when images were ambiguous. We propose a confidence calibration framework that improved rare-finding sensitivity by 18% while maintaining overall concordance above 91%."
+
+  ABSTRACT 6 (Morales-Rodriguez et al., 2024, Journal of Medical Internet Research):
+  "A randomized controlled trial (n=860 patients) evaluated LLM-generated patient education materials versus standard materials across 4 chronic conditions. LLM-generated materials scored significantly higher on readability (Flesch-Kincaid grade 6.2 vs 10.8), patient comprehension (78% vs 54% on post-reading quiz), and patient satisfaction (4.3 vs 3.1 on 5-point scale). However, expert review found factual inaccuracies in 8.3% of LLM-generated materials, including 2 instances of potentially dangerous medication interaction omissions."
+
+  ABSTRACT 7 (Nakamura et al., 2024, Nature Biomedical Engineering):
+  "We present MedLLM-Genomics, a multimodal LLM that integrates clinical notes, lab results, imaging, and genomic data for cancer treatment recommendation. In a retrospective analysis of 4,200 oncology cases, our model's treatment recommendations matched tumor board decisions in 73.1% of cases. For the 26.9% of discordant cases, independent expert review judged the model's recommendation as clinically reasonable in 44% of those cases. The model showed particular strength in identifying eligible clinical trials (89% recall vs 34% for standard oncologist workflow)."
+
+  ABSTRACT 8 (Williams & Fraser, 2024, Health Affairs):
+  "We analyze the regulatory and liability landscape for LLMs in clinical practice using a legal framework analysis across 15 jurisdictions. Key findings: no jurisdiction has comprehensive regulation specific to clinical LLMs, existing medical device regulations are poorly suited to continuously learning models, and liability for LLM-related medical errors remains legally ambiguous in 13 of 15 jurisdictions. We propose a regulatory framework with three tiers: informational (low risk), advisory (medium risk), and autonomous (high risk, currently not recommended)."
+
+expected:
+  response_contains:
+    - "bias"
+    - "clinical decision support"
+    - "regulatory"
+    - "documentation"
+    - "patient education"
+    - "gap"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

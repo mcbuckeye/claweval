@@ -169,7 +169,7 @@ def test_load_actual_tasks():
     """Load the real task files to verify they parse correctly."""
     from claweval.task_loader import TASKS_DIR
     tasks = load_tasks()
-    assert len(tasks) == 35, f"Expected 35 tasks, got {len(tasks)}"
+    assert len(tasks) >= 35, f"Expected at least 35 tasks, got {len(tasks)}"
 
     categories = set(t.category for t in tasks)
     expected_cats = {"tool_calling", "coding", "reasoning", "writing", "research", "memory", "speed"}

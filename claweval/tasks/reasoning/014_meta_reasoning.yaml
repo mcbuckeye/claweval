@@ -1,0 +1,41 @@
+id: reasoning_014
+name: "Meta-reasoning: when to give up vs. keep trying"
+category: reasoning
+description: "Determine the optimal stopping point in a search problem with diminishing returns"
+difficulty: hard
+
+system_prompt: |
+  You are a decision theory expert. Analyze the expected value at each decision point and determine the optimal strategy. Show your calculations.
+
+user_message: |
+  A software engineer is debugging a production outage. They have identified 5 possible root causes, ranked by estimated likelihood:
+
+  - Cause A: 40% likely, investigation cost: 15 minutes
+  - Cause B: 25% likely, investigation cost: 30 minutes
+  - Cause C: 20% likely, investigation cost: 45 minutes
+  - Cause D: 10% likely, investigation cost: 60 minutes
+  - Cause E: 5% likely, investigation cost: 90 minutes
+
+  Rules:
+  - Investigating a cause either confirms it (finding the bug) or definitively rules it out.
+  - If a cause is ruled out, its probability redistributes proportionally among remaining causes.
+  - The outage costs the company $200 per minute it remains unresolved.
+  - At any point, instead of investigating the next cause, the engineer can choose to "escalate and rollback" which takes exactly 20 minutes and is guaranteed to resolve the outage (but doesn't fix the underlying bug — that's acceptable).
+  - The engineer investigates causes in order: A, B, C, D, E.
+
+  Questions:
+  1. What is the expected total cost (investigation time cost + outage cost) if the engineer investigates A first? Consider both outcomes (found vs. not found) and the optimal continuation in each case.
+  2. After ruling out A and B (total 45 min spent), should the engineer investigate C or escalate? Calculate the expected cost of each option at this decision point.
+  3. What is the optimal strategy — at which point (if any) should the engineer stop investigating and escalate?
+
+  Note: When calculating outage cost, the outage continues during investigation time. If the engineer investigates and finds the cause, assume the fix is instant. If they escalate, the outage continues for the 20-minute rollback.
+
+expected:
+  response_contains:
+    - "escalate"
+    - "after"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

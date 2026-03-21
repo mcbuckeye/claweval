@@ -1,0 +1,49 @@
+id: reasoning_013
+name: "Probabilistic reasoning with incomplete information"
+category: reasoning
+description: "Apply Bayesian reasoning to update beliefs given partial and ambiguous evidence"
+difficulty: hard
+
+system_prompt: |
+  You are a probabilistic reasoning expert. Show your calculations step by step using Bayes' theorem. Express final probabilities as percentages rounded to one decimal place.
+
+user_message: |
+  A cybersecurity team is investigating an alert. There are three possible causes:
+
+  - H1: External attacker (prior probability: 20%)
+  - H2: Insider threat (prior probability: 5%)
+  - H3: False alarm / benign anomaly (prior probability: 75%)
+
+  The team sequentially discovers three pieces of evidence:
+
+  Evidence A: The flagged traffic originated from an internal IP address.
+  - P(A | H1) = 0.30 (attackers sometimes compromise internal machines)
+  - P(A | H2) = 0.95
+  - P(A | H3) = 0.70
+
+  Evidence B: The access occurred at 3:17 AM on a Sunday.
+  - P(B | H1) = 0.80
+  - P(B | H2) = 0.40
+  - P(B | H3) = 0.05
+
+  Evidence C: The accessed files were in a directory the flagged user account has legitimate permissions for.
+  - P(C | H1) = 0.15
+  - P(C | H2) = 0.85
+  - P(C | H3) = 0.90
+
+  Assume all evidence is conditionally independent given each hypothesis.
+
+  Questions:
+  1. After observing all three pieces of evidence (A, B, and C), what is the posterior probability of each hypothesis?
+  2. Which hypothesis is most likely?
+  3. Should the team escalate this as a likely real threat, or classify it as probably benign?
+
+expected:
+  response_contains:
+    - "insider"
+    - "H2"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

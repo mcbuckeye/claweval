@@ -1,0 +1,43 @@
+id: reasoning_012
+name: "Systems thinking"
+category: reasoning
+description: "Trace cascading effects of a configuration change through a distributed system"
+difficulty: hard
+
+system_prompt: |
+  You are a senior site reliability engineer. Trace the full cascade of effects through the system. Identify every component affected and the final user-visible impact.
+
+user_message: |
+  A microservices architecture has the following dependency chain:
+
+  - API Gateway -> Auth Service -> User DB (PostgreSQL, connection pool max: 50)
+  - API Gateway -> Product Service -> Product DB (PostgreSQL, connection pool max: 100)
+  - API Gateway -> Order Service -> Order DB + Product Service (for inventory check)
+  - Product Service has a cache (Redis, TTL: 5 min) in front of Product DB
+  - Order Service has a circuit breaker (threshold: 50% failures over 10 sec window, cooldown: 30 sec) on its call to Product Service
+  - API Gateway has a rate limiter: 1000 req/sec per service
+  - All services have a request timeout of 3 seconds
+
+  Configuration change: An engineer changes the Product DB connection pool max from 100 to 5 (a typo — intended 50).
+
+  Assume steady-state traffic of 200 product reads/sec and 50 order inventory-checks/sec through Product Service (total 250 req/sec to Product Service).
+
+  Trace the cascade:
+  1. What happens to Product Service under this load?
+  2. What happens to Order Service?
+  3. What happens to the API Gateway?
+  4. Which services remain fully operational?
+  5. What is the final state of the system 2 minutes after the change?
+
+  Give a concise ordered list of the cascading effects and the final system state.
+
+expected:
+  response_contains:
+    - "circuit breaker"
+    - "Auth Service"
+    - "timeout"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

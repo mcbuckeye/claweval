@@ -1,0 +1,32 @@
+id: speed_013
+name: "Markdown table with 10 rows from description"
+category: speed
+description: "Generate a detailed markdown table with 10 rows and rich content from a prose description — measures formatted output throughput"
+difficulty: hard
+
+system_prompt: |
+  You are a technical research assistant. Present information in well-formatted markdown tables. Every cell should contain substantive, detailed content — not one-word entries. Follow each table with a brief analytical summary.
+
+user_message: |
+  Create a comprehensive markdown comparison table of 10 modern backend web frameworks across the following 8 columns:
+
+  | Framework | Language | Release Year | Key Features (list at least 3) | Performance Tier (with justification) | Best Use Cases (at least 2) | Notable Drawbacks (at least 2) | Ecosystem Maturity (rate 1-10 with rationale) |
+
+  Include these 10 frameworks: Express.js, FastAPI, Django, Ruby on Rails, Spring Boot, Gin, Actix Web, Phoenix, ASP.NET Core, and Fiber.
+
+  For each framework, the "Key Features" cell must list at least 3 specific features. The "Performance Tier" cell must include a tier label (low/medium/high/very high) AND a one-sentence justification. The "Best Use Cases" and "Notable Drawbacks" cells must each contain at least 2 items.
+
+  After the table, write a 200-word analytical summary discussing trends across the frameworks, identifying which framework is best suited for three specific scenarios (high-throughput API, rapid prototyping, enterprise application), and noting any emerging patterns in framework design.
+
+expected:
+  response_contains:
+    - "FastAPI"
+    - "Spring Boot"
+    - "Actix Web"
+    - "Phoenix"
+    - "Ecosystem Maturity"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0
