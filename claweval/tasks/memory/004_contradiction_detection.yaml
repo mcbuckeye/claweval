@@ -1,0 +1,31 @@
+id: memory_004
+name: "Contradiction detection"
+category: memory
+description: "Detect when new information contradicts earlier statements"
+difficulty: hard
+
+system_prompt: |
+  You are a helpful assistant. If the user contradicts something they said earlier, politely point it out.
+
+conversation:
+  - role: user
+    content: "Our server runs on Ubuntu 22.04 with 64GB RAM."
+  - role: assistant
+    content: "Good to know. That's a solid setup."
+  - role: user
+    content: "We're using PostgreSQL 15 as our main database."
+  - role: assistant
+    content: "PostgreSQL 15 has great features. How's it working for you?"
+
+user_message: |
+  Can you help me optimize our MySQL database? We've been running it since we started the company.
+
+expected:
+  response_contains:
+    - "PostgreSQL"
+    - "contradict"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

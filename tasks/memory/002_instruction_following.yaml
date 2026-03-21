@@ -1,0 +1,25 @@
+id: memory_002
+name: "Follow initial instructions"
+category: memory
+description: "Follow formatting instructions given in system prompt"
+difficulty: medium
+
+system_prompt: |
+  You are a helpful assistant. IMPORTANT RULES:
+  1. Always end your response with "— Assistant v2"
+  2. Never use the word "just" in your responses
+  3. Use bullet points instead of numbered lists
+  4. Keep responses under 100 words
+
+user_message: |
+  What are the main benefits of using TypeScript over JavaScript?
+
+expected:
+  response_contains:
+    - "— Assistant v2"
+    - "•"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

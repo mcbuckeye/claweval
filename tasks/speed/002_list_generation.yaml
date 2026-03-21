@@ -1,0 +1,22 @@
+id: speed_002
+name: "List generation"
+category: speed
+description: "Generate a medium-length list — measures sustained generation"
+difficulty: easy
+
+system_prompt: |
+  You are a helpful assistant.
+
+user_message: |
+  List 10 popular Python web frameworks with a one-sentence description of each.
+
+expected:
+  response_contains:
+    - "Django"
+    - "Flask"
+    - "FastAPI"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

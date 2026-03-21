@@ -1,0 +1,29 @@
+id: reasoning_002
+name: "Logic puzzle"
+category: reasoning
+description: "Solve a constraint satisfaction puzzle"
+difficulty: medium
+
+system_prompt: |
+  You are a helpful assistant. Think step by step.
+
+user_message: |
+  Three friends — Alice, Bob, and Carol — each have a different pet: a cat, a dog, and a fish.
+  - Alice does not have the dog.
+  - Bob does not have the cat.
+  - Carol does not have the dog.
+  Who has which pet?
+
+expected:
+  response_contains:
+    - "Alice"
+    - "cat"
+    - "Bob"
+    - "dog"
+    - "Carol"
+    - "fish"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

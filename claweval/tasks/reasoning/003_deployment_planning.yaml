@@ -1,0 +1,33 @@
+id: reasoning_003
+name: "Deployment order planning"
+category: reasoning
+description: "Determine correct order of operations for a deployment"
+difficulty: medium
+
+system_prompt: |
+  You are a DevOps expert. Think through dependencies carefully.
+
+user_message: |
+  I need to deploy these components. What order should I deploy them in?
+  
+  - Frontend (depends on API Gateway)
+  - API Gateway (depends on Auth Service and Backend API)
+  - Database (no dependencies)
+  - Backend API (depends on Database and Cache)
+  - Cache (Redis, no dependencies)
+  - Auth Service (depends on Database)
+
+  List them in the correct deployment order.
+
+expected:
+  response_contains:
+    - "Database"
+    - "Cache"
+    - "Backend"
+    - "Gateway"
+    - "Frontend"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

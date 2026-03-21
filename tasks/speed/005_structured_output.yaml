@@ -1,0 +1,24 @@
+id: speed_005
+name: "Structured JSON output"
+category: speed
+description: "Generate structured JSON — measures format-constrained output speed"
+difficulty: medium
+
+system_prompt: |
+  You are a data generation assistant. Always respond with valid JSON.
+
+user_message: |
+  Generate a JSON array of 5 fictional employees with fields: id (integer), name (string), department (string), salary (number), start_date (ISO date string), skills (array of strings, 3 each).
+
+expected:
+  response_contains:
+    - "id"
+    - "name"
+    - "department"
+    - "salary"
+    - "skills"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

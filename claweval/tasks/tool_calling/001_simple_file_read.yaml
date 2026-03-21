@@ -1,0 +1,42 @@
+id: tool_calling_001
+name: "Simple file read"
+category: tool_calling
+description: "Ask the model to read a specific file"
+difficulty: easy
+
+system_prompt: |
+  You are a helpful assistant with access to tools.
+
+user_message: |
+  Read the contents of /workspace/README.md and tell me what the project is about.
+
+tools:
+  - name: read_file
+    description: "Read the contents of a file"
+    parameters:
+      type: object
+      properties:
+        path:
+          type: string
+          description: "Path to the file to read"
+      required: ["path"]
+
+mock_tool_responses:
+  read_file:
+    response: "# MyProject\nA web application for tracking tasks. Built with FastAPI and React."
+
+expected:
+  tool_calls:
+    - name: read_file
+      args:
+        path: "/workspace/README.md"
+  response_contains:
+    - "task"
+    - "FastAPI"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.4
+    correct_params: 0.3
+    response_quality: 0.3

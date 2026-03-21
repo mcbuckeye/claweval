@@ -1,0 +1,31 @@
+id: writing_002
+name: "Project status update"
+category: writing
+description: "Write a concise project status update"
+difficulty: easy
+
+system_prompt: |
+  You are a project management assistant. Be concise and structured.
+
+user_message: |
+  Write a project status update based on these notes:
+  - Sprint 12 completed: 18 of 21 story points done
+  - Auth service refactor merged (2 weeks ahead of schedule)
+  - Payment integration blocked — waiting on Stripe API access (ticket STR-445)
+  - New hire (Maya) onboarded, assigned to search team
+  - Performance regression found in search API (P2, being investigated)
+  - Next sprint focus: payment integration + search optimization
+
+expected:
+  response_contains:
+    - "Sprint 12"
+    - "18"
+    - "blocked"
+    - "Stripe"
+    - "Maya"
+    - "regression"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

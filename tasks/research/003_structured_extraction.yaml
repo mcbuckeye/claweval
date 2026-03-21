@@ -1,0 +1,29 @@
+id: research_003
+name: "Structured data extraction"
+category: research
+description: "Extract structured data from unstructured text"
+difficulty: medium
+
+system_prompt: |
+  You are a data extraction specialist. Extract structured information from text.
+
+user_message: |
+  Extract all people, their roles, and companies from this text into a JSON array:
+
+  "At the conference, Dr. Sarah Chen from Google Research presented her work on transformers. John Martinez, CTO of DataFlow Inc., announced their Series B funding. The keynote was delivered by Lisa Wong, VP of Engineering at Meta, who discussed responsible AI. Professor James Liu from MIT also participated in the panel discussion."
+
+expected:
+  response_contains:
+    - "Sarah Chen"
+    - "Google"
+    - "John Martinez"
+    - "DataFlow"
+    - "Lisa Wong"
+    - "Meta"
+    - "James Liu"
+    - "MIT"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

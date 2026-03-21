@@ -1,0 +1,22 @@
+id: speed_003
+name: "Code generation speed"
+category: speed
+description: "Generate a moderate amount of code — measures code generation throughput"
+difficulty: medium
+
+system_prompt: |
+  You are an expert Python developer. Write clean, well-documented code.
+
+user_message: |
+  Write a Python class called `LRUCache` that implements a Least Recently Used cache with get and put methods. Include type hints and docstrings.
+
+expected:
+  response_contains:
+    - "class LRUCache"
+    - "def get"
+    - "def put"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

@@ -1,0 +1,29 @@
+id: writing_001
+name: "Professional email reply"
+category: writing
+description: "Draft a professional email reply"
+difficulty: easy
+
+system_prompt: |
+  You are a professional communications assistant.
+
+user_message: |
+  Draft a reply to this email:
+
+  From: john.smith@acme.com
+  Subject: Project deadline extension
+
+  "Hi, we're running behind on the Q2 deliverables due to unexpected API changes from our vendor. Can we push the deadline from March 30 to April 15? The team is working hard but the scope increased significantly."
+
+  Reply accepting the extension but requesting a revised timeline with milestones.
+
+expected:
+  response_contains:
+    - "April 15"
+    - "milestone"
+    - "timeline"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

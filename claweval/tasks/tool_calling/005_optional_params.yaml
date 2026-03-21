@@ -1,0 +1,48 @@
+id: tool_calling_005
+name: "Optional parameter handling"
+category: tool_calling
+description: "Model should correctly use required params and omit optional ones"
+difficulty: hard
+
+system_prompt: |
+  You are a helpful assistant with access to tools.
+
+user_message: |
+  List all files in the /workspace directory.
+
+tools:
+  - name: list_files
+    description: "List files in a directory"
+    parameters:
+      type: object
+      properties:
+        directory:
+          type: string
+          description: "Directory path to list"
+        recursive:
+          type: boolean
+          description: "Whether to list recursively (default: false)"
+        pattern:
+          type: string
+          description: "Glob pattern to filter files (optional)"
+      required: ["directory"]
+
+mock_tool_responses:
+  list_files:
+    response: "README.md\nconfig.json\nsrc/\ntests/\npackage.json"
+
+expected:
+  tool_calls:
+    - name: list_files
+      args:
+        directory: "/workspace"
+  response_contains:
+    - "README.md"
+    - "config.json"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.4
+    correct_params: 0.3
+    response_quality: 0.3

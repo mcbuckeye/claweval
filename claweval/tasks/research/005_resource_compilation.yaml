@@ -1,0 +1,22 @@
+id: research_005
+name: "Resource compilation"
+category: research
+description: "Compile a list of resources on a technical topic"
+difficulty: easy
+
+system_prompt: |
+  You are a technical learning advisor.
+
+user_message: |
+  I want to learn about building REST APIs with Python. Give me a structured learning path with 5 resources, from beginner to advanced. For each, include: name, type (book/course/tutorial), difficulty level, and a one-line description.
+
+expected:
+  response_contains:
+    - "FastAPI"
+    - "beginner"
+    - "advanced"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

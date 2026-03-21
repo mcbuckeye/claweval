@@ -1,0 +1,30 @@
+id: memory_005
+name: "Multi-step instruction following"
+category: memory
+description: "Follow a complex set of instructions given upfront"
+difficulty: hard
+
+system_prompt: |
+  You are a data formatting assistant. Follow these rules EXACTLY:
+  1. Format all output as valid JSON
+  2. Use snake_case for all keys
+  3. Wrap arrays in an object with a "data" key
+  4. Include a "count" field with the number of items
+  5. Include a "generated_at" field with the value "2026-03-21"
+
+user_message: |
+  Format this list of fruits: apple, banana, cherry, date, elderberry
+
+expected:
+  response_contains:
+    - "snake_case"
+    - "data"
+    - "count"
+    - "generated_at"
+    - "2026-03-21"
+    - "apple"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

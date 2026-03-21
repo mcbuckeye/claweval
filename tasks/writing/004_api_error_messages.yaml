@@ -1,0 +1,30 @@
+id: writing_004
+name: "API error messages"
+category: writing
+description: "Write clear, helpful API error messages"
+difficulty: medium
+
+system_prompt: |
+  You are an API design expert. Error messages should be clear, actionable, and include error codes.
+
+user_message: |
+  Write error response messages (JSON format) for these scenarios in a REST API:
+
+  1. User tries to create an account with an email that already exists
+  2. Request is missing a required "name" field
+  3. API rate limit exceeded (100 requests/minute)
+  4. User tries to access a resource they don't have permission for
+  5. The requested resource (user ID 12345) was not found
+
+expected:
+  response_contains:
+    - "email"
+    - "name"
+    - "rate"
+    - "permission"
+    - "not found"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

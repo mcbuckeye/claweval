@@ -1,0 +1,20 @@
+id: speed_001
+name: "Short factual response"
+category: speed
+description: "Quick factual answer — measures TTFT and generation speed"
+difficulty: easy
+
+system_prompt: |
+  You are a helpful assistant. Be concise.
+
+user_message: |
+  What is the capital of France?
+
+expected:
+  response_contains:
+    - "Paris"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

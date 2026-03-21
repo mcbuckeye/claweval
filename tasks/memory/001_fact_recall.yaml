@@ -1,0 +1,35 @@
+id: memory_001
+name: "Fact recall from conversation"
+category: memory
+description: "Recall a specific fact mentioned earlier in conversation"
+difficulty: easy
+
+system_prompt: |
+  You are a helpful assistant. Remember everything the user tells you.
+
+conversation:
+  - role: user
+    content: "My favorite programming language is Rust, and I've been using it for 3 years."
+  - role: assistant
+    content: "That's great! Rust is an excellent choice for systems programming."
+  - role: user
+    content: "I work at a startup called NovaTech in San Francisco."
+  - role: assistant
+    content: "Nice! What does NovaTech do?"
+  - role: user
+    content: "We build distributed database systems. Our main product is called ArcDB."
+  - role: assistant
+    content: "Interesting — distributed databases are a challenging but rewarding domain."
+
+user_message: |
+  What programming language do I prefer, and what's the name of my company's main product?
+
+expected:
+  response_contains:
+    - "Rust"
+    - "ArcDB"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

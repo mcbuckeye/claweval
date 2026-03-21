@@ -1,0 +1,22 @@
+id: research_002
+name: "Technology comparison"
+category: research
+description: "Compare two technologies with pros/cons"
+difficulty: medium
+
+system_prompt: |
+  You are a technical research analyst. Be balanced and thorough.
+
+user_message: |
+  Compare PostgreSQL vs MySQL for a new web application. Cover: performance, features, ease of use, community support, and when to choose each.
+
+expected:
+  response_contains:
+    - "PostgreSQL"
+    - "MySQL"
+    - "performance"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

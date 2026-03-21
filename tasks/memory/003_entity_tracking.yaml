@@ -1,0 +1,42 @@
+id: memory_003
+name: "Entity tracking"
+category: memory
+description: "Track multiple entities mentioned across a conversation"
+difficulty: medium
+
+system_prompt: |
+  You are a helpful assistant. Keep track of all people and their details.
+
+conversation:
+  - role: user
+    content: "I'm planning a dinner party. Alice is vegetarian and allergic to nuts."
+  - role: assistant
+    content: "Noted! I'll keep Alice's dietary needs in mind. Who else is coming?"
+  - role: user
+    content: "Bob is coming too. He's gluten-free. And Carol, who eats everything but doesn't like spicy food."
+  - role: assistant
+    content: "Got it — three guests with different dietary needs."
+  - role: user
+    content: "Oh, and David just confirmed. He's vegan."
+  - role: assistant
+    content: "Four guests total now. This is shaping up to be a great dinner!"
+
+user_message: |
+  Summarize each guest's dietary restrictions.
+
+expected:
+  response_contains:
+    - "Alice"
+    - "vegetarian"
+    - "nuts"
+    - "Bob"
+    - "gluten"
+    - "Carol"
+    - "spicy"
+    - "David"
+    - "vegan"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

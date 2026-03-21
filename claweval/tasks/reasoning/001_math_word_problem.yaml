@@ -1,0 +1,20 @@
+id: reasoning_001
+name: "Multi-step arithmetic"
+category: reasoning
+description: "Solve a word problem requiring multiple arithmetic steps"
+difficulty: easy
+
+system_prompt: |
+  You are a helpful assistant. Show your work and give the final answer.
+
+user_message: |
+  A store sells notebooks for $4 each and pens for $2 each. Sarah buys 3 notebooks and 5 pens. She pays with a $50 bill. How much change does she receive?
+
+expected:
+  response_contains:
+    - "28"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

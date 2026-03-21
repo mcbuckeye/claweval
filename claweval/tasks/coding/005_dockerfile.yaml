@@ -1,0 +1,30 @@
+id: coding_005
+name: "Generate Dockerfile"
+category: coding
+description: "Write a Dockerfile for a Python FastAPI application"
+difficulty: easy
+
+system_prompt: |
+  You are an expert DevOps engineer.
+
+user_message: |
+  Write a production-ready Dockerfile for a Python FastAPI app with these requirements:
+  - Python 3.12
+  - Uses requirements.txt for dependencies
+  - App entry point is main.py
+  - Runs on port 8000 with uvicorn
+  - Should use a non-root user for security
+  - Multi-stage build preferred
+
+expected:
+  response_contains:
+    - "FROM python"
+    - "COPY"
+    - "requirements.txt"
+    - "uvicorn"
+    - "8000"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

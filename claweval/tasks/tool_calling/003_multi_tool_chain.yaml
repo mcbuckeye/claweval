@@ -1,0 +1,41 @@
+id: tool_calling_003
+name: "Multi-tool chain"
+category: tool_calling
+description: "Model must call one tool, use its output to call another"
+difficulty: medium
+
+system_prompt: |
+  You are a helpful assistant with access to tools. Use them as needed.
+
+user_message: |
+  Find the file at /workspace/config.json, read it, and tell me which port the server runs on.
+
+tools:
+  - name: read_file
+    description: "Read the contents of a file"
+    parameters:
+      type: object
+      properties:
+        path:
+          type: string
+          description: "Path to the file to read"
+      required: ["path"]
+
+mock_tool_responses:
+  read_file:
+    response: '{"server": {"host": "0.0.0.0", "port": 8080}, "debug": false}'
+
+expected:
+  tool_calls:
+    - name: read_file
+      args:
+        path: "/workspace/config.json"
+  response_contains:
+    - "8080"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    correct_params: 0.3
+    response_quality: 0.4

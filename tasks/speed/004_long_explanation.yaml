@@ -1,0 +1,22 @@
+id: speed_004
+name: "Long explanation"
+category: speed
+description: "Generate a detailed explanation — measures sustained output"
+difficulty: medium
+
+system_prompt: |
+  You are a computer science educator. Explain concepts clearly with examples.
+
+user_message: |
+  Explain how a hash table works, including: the hash function, collision handling (chaining vs open addressing), load factor, and resizing. Include a simple Python example.
+
+expected:
+  response_contains:
+    - "hash"
+    - "collision"
+    - "load factor"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

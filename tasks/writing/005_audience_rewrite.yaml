@@ -1,0 +1,27 @@
+id: writing_005
+name: "Audience-specific rewrite"
+category: writing
+description: "Rewrite technical content for different audiences"
+difficulty: hard
+
+system_prompt: |
+  You are a communications expert who adapts content for different audiences.
+
+user_message: |
+  Rewrite this technical update for two audiences:
+
+  Original (from engineering): "We migrated our primary database from PostgreSQL 14 to 16 with zero downtime using logical replication. The pg_stat_statements extension showed a 40% reduction in p99 query latency after upgrading the query planner. We also enabled transparent huge pages which reduced memory fragmentation by 25%."
+
+  1. Executive summary (for C-suite, 2-3 sentences max)
+  2. Customer-facing update (for a status page or blog)
+
+expected:
+  response_contains:
+    - "database"
+    - "performance"
+    - "faster"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

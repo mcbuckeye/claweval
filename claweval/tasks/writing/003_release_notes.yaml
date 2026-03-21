@@ -1,0 +1,33 @@
+id: writing_003
+name: "Release notes from changelog"
+category: writing
+description: "Write user-friendly release notes from a technical changelog"
+difficulty: medium
+
+system_prompt: |
+  You are a technical writer. Write clear, user-friendly release notes.
+
+user_message: |
+  Write release notes for v2.4.0 based on this changelog:
+
+  - feat: add SSO support for SAML 2.0 (#1234)
+  - feat: bulk export API endpoint (#1256)
+  - fix: resolve memory leak in WebSocket handler (#1248)
+  - fix: correct timezone handling in scheduled reports (#1251)
+  - perf: optimize dashboard query (3x faster) (#1245)
+  - chore: upgrade to Node 20 LTS (#1239)
+  - docs: add API rate limiting guide (#1242)
+
+  Target audience: end users (not developers).
+
+expected:
+  response_contains:
+    - "SSO"
+    - "export"
+    - "dashboard"
+    - "2.4.0"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

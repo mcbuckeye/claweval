@@ -1,0 +1,24 @@
+id: coding_001
+name: "Generate FastAPI endpoint"
+category: coding
+description: "Generate a FastAPI CRUD endpoint from a description"
+difficulty: medium
+
+system_prompt: |
+  You are an expert Python developer.
+
+user_message: |
+  Write a FastAPI endpoint that accepts a POST request at /users with a JSON body containing "name" (string) and "email" (string). It should validate both fields are present, store the user in a list, and return the created user with an auto-incremented "id" field. Return 422 if fields are missing.
+
+expected:
+  response_contains:
+    - "@app.post"
+    - "/users"
+    - "name"
+    - "email"
+    - "id"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

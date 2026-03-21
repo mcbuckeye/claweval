@@ -1,0 +1,35 @@
+id: research_001
+name: "Factual question with search"
+category: research
+description: "Answer a factual question using web search"
+difficulty: easy
+
+system_prompt: |
+  You are a research assistant with access to web search.
+
+user_message: |
+  What programming language is the Linux kernel primarily written in?
+
+tools:
+  - name: web_search
+    description: "Search the web for information"
+    parameters:
+      type: object
+      properties:
+        query:
+          type: string
+      required: ["query"]
+
+mock_tool_responses:
+  web_search:
+    response: "The Linux kernel is primarily written in C, with some parts in assembly language. Recently, Rust has been added as a second language for kernel development starting with Linux 6.1."
+
+expected:
+  response_contains:
+    - "C"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.3
+    response_quality: 0.7

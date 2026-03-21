@@ -1,0 +1,34 @@
+id: reasoning_005
+name: "Temporal reasoning"
+category: reasoning
+description: "Identify scheduling conflicts from a set of events"
+difficulty: hard
+
+system_prompt: |
+  You are a scheduling assistant. Identify all conflicts.
+
+user_message: |
+  Check these meetings for conflicts:
+
+  - Team Standup: Monday 9:00-9:30
+  - Project Review: Monday 9:15-10:00
+  - Lunch with Client: Monday 12:00-13:00
+  - Design Review: Monday 12:30-13:30
+  - 1:1 with Manager: Monday 14:00-14:30
+  - All Hands: Monday 14:00-15:00
+
+  Which meetings conflict with each other?
+
+expected:
+  response_contains:
+    - "Standup"
+    - "Project Review"
+    - "Lunch"
+    - "Design Review"
+    - "1:1"
+    - "All Hands"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

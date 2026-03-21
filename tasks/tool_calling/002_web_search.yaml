@@ -1,0 +1,40 @@
+id: tool_calling_002
+name: "Web search query"
+category: tool_calling
+description: "Model should search the web for current information"
+difficulty: easy
+
+system_prompt: |
+  You are a helpful assistant with access to tools.
+
+user_message: |
+  What is the current weather in New York City?
+
+tools:
+  - name: web_search
+    description: "Search the web for information"
+    parameters:
+      type: object
+      properties:
+        query:
+          type: string
+          description: "Search query"
+      required: ["query"]
+
+mock_tool_responses:
+  web_search:
+    response: "Current weather in NYC: 72°F, partly cloudy, humidity 45%, wind 8 mph NW."
+
+expected:
+  tool_calls:
+    - name: web_search
+      args: {}
+  response_contains:
+    - "72"
+    - "cloudy"
+
+scoring:
+  method: deterministic
+  weights:
+    correct_tool: 0.5
+    response_quality: 0.5

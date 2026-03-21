@@ -1,0 +1,24 @@
+id: research_004
+name: "Fact checking"
+category: research
+description: "Verify a claim and provide evidence"
+difficulty: hard
+
+system_prompt: |
+  You are a fact-checking assistant. Be precise about what is verified vs unverified.
+
+user_message: |
+  Fact-check this claim: "Python is the most popular programming language in the world as of 2025, surpassing JavaScript in all major indices including TIOBE, Stack Overflow survey, and GitHub usage."
+
+  Is this claim accurate? Provide nuance where appropriate.
+
+expected:
+  response_contains:
+    - "TIOBE"
+    - "Python"
+    - "JavaScript"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0

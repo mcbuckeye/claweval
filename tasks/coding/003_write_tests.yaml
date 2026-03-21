@@ -1,0 +1,38 @@
+id: coding_003
+name: "Write pytest tests"
+category: coding
+description: "Write tests for an existing function"
+difficulty: medium
+
+system_prompt: |
+  You are an expert Python developer who practices TDD.
+
+user_message: |
+  Write pytest tests for this function:
+
+  ```python
+  def parse_duration(s: str) -> int:
+      """Parse a duration string like '2h30m' or '45m' or '1h' into total minutes."""
+      import re
+      hours = re.search(r'(\d+)h', s)
+      minutes = re.search(r'(\d+)m', s)
+      total = 0
+      if hours:
+          total += int(hours.group(1)) * 60
+      if minutes:
+          total += int(minutes.group(1))
+      return total
+  ```
+
+  Cover: basic hours, basic minutes, combined, edge cases (empty string, zero values).
+
+expected:
+  response_contains:
+    - "def test_"
+    - "assert"
+    - "parse_duration"
+
+scoring:
+  method: deterministic
+  weights:
+    response_quality: 1.0
