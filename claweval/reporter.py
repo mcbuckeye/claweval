@@ -35,7 +35,8 @@ DASHBOARD_TEMPLATE = """\
   .chart-container { position: relative; height: 400px; }
   table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
   th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #21262d; }
-  th { color: #8b949e; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+  th { color: #8b949e; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; user-select: none; }
+  th:hover { color: #c9d1d9; }
   td { font-size: 0.9rem; }
   .score { font-weight: 700; }
   .score-high { color: #3fb950; }
@@ -71,7 +72,7 @@ DASHBOARD_TEMPLATE = """\
   <table>
     <thead><tr><th>Model</th><th>Overall</th>
     {% for cat in categories %}<th>{{ cat }}</th>{% endfor %}
-    <th>Avg tok/s</th><th>Gen tok/s</th><th>Avg TTFT</th><th>RAM (GB)</th><th>Q/GB</th>
+    <th>Avg Time</th><th>Avg TTFT</th><th>RAM (GB)</th><th>Q/GB</th>
     </tr></thead>
     <tbody>
     {% for model_id, data in models.items() %}
@@ -85,8 +86,7 @@ DASHBOARD_TEMPLATE = """\
         {{ "%.1f"|format(data.categories.get(cat, 0) * 10) }}
       </td>
       {% endfor %}
-      <td>{{ "%.1f"|format(data.speed.avg_tok_s) }}</td>
-      <td>{{ "%.1f"|format(data.speed.get('avg_gen_tok_s', 0)) }}</td>
+      <td>{{ "%.2f"|format(data.speed.avg_wall_clock_ms / 1000) }}s</td>
       <td>{{ "%.0f"|format(data.speed.avg_ttft_ms) }}ms</td>
       <td>{{ "%.1f"|format(data.get('ram_gb', 0)) if data.get('ram_gb', 0) else '—' }}</td>
       <td class="efficiency">{{ "%.2f"|format(data.get('efficiency', {}).get('quality_per_gb', 0)) if data.get('efficiency', {}).get('quality_per_gb', 0) else '—' }}</td>
@@ -153,8 +153,8 @@ new Chart(document.getElementById('radarChart'), {
 const speedData = {
   labels: [{% for model_id, data in models.items() %}'{{ data.name }}'{{ "," if not loop.last }}{% endfor %}],
   datasets: [{
-    label: 'Tokens/sec',
-    data: [{% for model_id, data in models.items() %}{{ "%.1f"|format(data.speed.avg_tok_s) }}{{ "," if not loop.last }}{% endfor %}],
+    label: 'Avg seconds per task',
+    data: [{% for model_id, data in models.items() %}{{ "%.2f"|format(data.speed.avg_wall_clock_ms / 1000) }}{{ "," if not loop.last }}{% endfor %}],
     backgroundColor: modelColors.slice(0, {{ models|length }}),
   }]
 };
@@ -168,6 +168,29 @@ new Chart(document.getElementById('speedChart'), {
               y: { ticks: { color: '#c9d1d9' }, grid: { display: false } } },
     plugins: { legend: { display: false } }
   }
+});
+
+// Sortable tables
+document.querySelectorAll('table').forEach(table => {
+  const headers = table.querySelectorAll('th');
+  let sortCol = -1, sortAsc = true;
+  headers.forEach((th, idx) => {
+    th.addEventListener('click', () => {
+      if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
+      headers.forEach(h => h.textContent = h.textContent.replace(/ [▲▼]$/, ''));
+      th.textContent += sortAsc ? ' ▲' : ' ▼';
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      rows.sort((a, b) => {
+        const aT = a.cells[idx]?.textContent.trim() ?? '';
+        const bT = b.cells[idx]?.textContent.trim() ?? '';
+        const aN = parseFloat(aT), bN = parseFloat(bT);
+        if (!isNaN(aN) && !isNaN(bN)) return sortAsc ? aN - bN : bN - aN;
+        return sortAsc ? aT.localeCompare(bT) : bT.localeCompare(aT);
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    });
+  });
 });
 </script>
 </body>
@@ -191,7 +214,7 @@ class ModelSummary:
         if self.categories is None:
             self.categories = {}
         if self.speed is None:
-            self.speed = {"avg_tok_s": 0, "avg_ttft_ms": 0, "avg_gen_tok_s": 0}
+            self.speed = {"avg_tok_s": 0, "avg_ttft_ms": 0, "avg_gen_tok_s": 0, "avg_wall_clock_ms": 0}
         if self.task_results is None:
             self.task_results = []
         if self.efficiency is None:
@@ -262,6 +285,10 @@ def aggregate_results(
                 "avg_tok_s": avg_tok_s,
                 "avg_ttft_ms": avg_ttft,
                 "avg_gen_tok_s": avg_gen_tok_s,
+                "avg_wall_clock_ms": (
+                    sum(r.timing.wall_clock_ms for r in task_results) / len(task_results)
+                    if task_results else 0
+                ),
             },
             task_results=[r.to_dict() for r in task_results],
             efficiency={
@@ -338,7 +365,7 @@ def generate_dashboard(
     for r in results:
         if r.task_id not in task_details:
             parts = r.task_id.split("_")
-            cat = "_".join(parts[:-1]) if len(parts) >= 3 else "unknown"
+            cat = "_".join(parts[:-1]) if len(parts) >= 2 else "unknown"
             task_details[r.task_id] = {"category": cat, "scores": {}}
         task_details[r.task_id]["scores"][r.model_id] = (
             r.score.total_score if r.score else 0.0
