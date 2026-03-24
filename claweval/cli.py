@@ -108,12 +108,13 @@ def run(config_path: str, category: tuple[str, ...], model_filter: str | None,
     if scoring_mode in ("judge", "hybrid"):
         import os
         from claweval.judge import JudgeScorer
-        api_key = os.environ.get(cfg.settings.judge_api_key_env, "")
-        if not api_key:
+        use_cli = cfg.settings.raw.get("judge_use_cli", False)
+        api_key = os.environ.get(cfg.settings.judge_api_key_env, "") if not use_cli else ""
+        if not api_key and not use_cli:
             click.echo(f"Warning: {cfg.settings.judge_api_key_env} not set, falling back to deterministic scoring", err=True)
             scoring_mode = "deterministic"
         else:
-            judge_scorer = JudgeScorer(api_key=api_key)
+            judge_scorer = JudgeScorer(api_key=api_key, use_cli=use_cli)
 
     categories = list(category) if category else cfg.settings.categories
 

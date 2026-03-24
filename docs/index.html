@@ -1,0 +1,3325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClawEval Results — 2026-03-23T23:03:44Z</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: #0d1117; color: #c9d1d9; padding: 2rem; }
+  h1, h2, h3 { color: #e6edf3; }
+  h1 { margin-bottom: 0.5rem; font-size: 1.8rem; }
+  .meta { color: #8b949e; margin-bottom: 2rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; }
+  .chart-container { position: relative; height: 400px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #21262d; }
+  th { color: #8b949e; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+  td { font-size: 0.9rem; }
+  .score { font-weight: 700; }
+  .score-high { color: #3fb950; }
+  .score-mid { color: #d29922; }
+  .score-low { color: #f85149; }
+  .model-badge { display: inline-block; padding: 2px 8px; border-radius: 12px;
+                 font-size: 0.75rem; font-weight: 600; margin-right: 4px; }
+  .efficiency { color: #bc8cff; font-weight: 600; }
+  @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<h1>🦞 ClawEval Results</h1>
+<p class="meta">Run: 2026-03-23T23:03:44Z &bull; 6 model(s) &bull; 97 task(s)</p>
+
+<div class="grid">
+  <div class="card">
+    <h3>Category Scores (Radar)</h3>
+    <div class="chart-container">
+      <canvas id="radarChart"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Speed Comparison</h3>
+    <div class="chart-container">
+      <canvas id="speedChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Overall Scores</h3>
+  <table>
+    <thead><tr><th>Model</th><th>Overall</th>
+    <th>coding</th><th>memory</th><th>reasoning</th><th>research</th><th>speed</th><th>tool_calling</th><th>writing</th>
+    <th>Avg tok/s</th><th>Gen tok/s</th><th>Avg TTFT</th><th>RAM (GB)</th><th>Q/GB</th>
+    </tr></thead>
+    <tbody>
+    
+    <tr>
+      <td><strong>Qwen3-Coder-Next (80B)</strong></td>
+      <td class="score score-high">
+        8.0
+      </td>
+      
+      <td class="score score-high">
+        7.6
+      </td>
+      
+      <td class="score score-mid">
+        5.8
+      </td>
+      
+      <td class="score score-high">
+        8.6
+      </td>
+      
+      <td class="score score-high">
+        8.0
+      </td>
+      
+      <td class="score score-high">
+        9.8
+      </td>
+      
+      <td class="score score-high">
+        7.5
+      </td>
+      
+      <td class="score score-high">
+        8.9
+      </td>
+      
+      <td>0.0</td>
+      <td>69.0</td>
+      <td>1196ms</td>
+      <td>—</td>
+      <td class="efficiency">—</td>
+    </tr>
+    
+    <tr>
+      <td><strong>Qwen3.5-35B-A3B (MoE)</strong></td>
+      <td class="score score-high">
+        8.1
+      </td>
+      
+      <td class="score score-high">
+        7.3
+      </td>
+      
+      <td class="score score-mid">
+        5.8
+      </td>
+      
+      <td class="score score-high">
+        8.9
+      </td>
+      
+      <td class="score score-high">
+        8.4
+      </td>
+      
+      <td class="score score-high">
+        9.9
+      </td>
+      
+      <td class="score score-high">
+        7.4
+      </td>
+      
+      <td class="score score-high">
+        8.9
+      </td>
+      
+      <td>0.0</td>
+      <td>61.4</td>
+      <td>746ms</td>
+      <td>—</td>
+      <td class="efficiency">—</td>
+    </tr>
+    
+    <tr>
+      <td><strong>Nemotron-3-Nano</strong></td>
+      <td class="score score-high">
+        7.6
+      </td>
+      
+      <td class="score score-high">
+        7.3
+      </td>
+      
+      <td class="score score-mid">
+        5.4
+      </td>
+      
+      <td class="score score-high">
+        7.3
+      </td>
+      
+      <td class="score score-high">
+        7.9
+      </td>
+      
+      <td class="score score-high">
+        9.8
+      </td>
+      
+      <td class="score score-high">
+        7.5
+      </td>
+      
+      <td class="score score-high">
+        8.3
+      </td>
+      
+      <td>0.0</td>
+      <td>121.7</td>
+      <td>1061ms</td>
+      <td>—</td>
+      <td class="efficiency">—</td>
+    </tr>
+    
+    <tr>
+      <td><strong>Nemotron-3-Super</strong></td>
+      <td class="score score-high">
+        7.9
+      </td>
+      
+      <td class="score score-high">
+        7.6
+      </td>
+      
+      <td class="score score-mid">
+        5.7
+      </td>
+      
+      <td class="score score-high">
+        8.5
+      </td>
+      
+      <td class="score score-high">
+        7.2
+      </td>
+      
+      <td class="score score-high">
+        9.8
+      </td>
+      
+      <td class="score score-high">
+        7.7
+      </td>
+      
+      <td class="score score-high">
+        8.8
+      </td>
+      
+      <td>0.0</td>
+      <td>36.3</td>
+      <td>1985ms</td>
+      <td>—</td>
+      <td class="efficiency">—</td>
+    </tr>
+    
+    <tr>
+      <td><strong>Qwen3.5-9B</strong></td>
+      <td class="score score-high">
+        7.8
+      </td>
+      
+      <td class="score score-mid">
+        6.7
+      </td>
+      
+      <td class="score score-mid">
+        5.6
+      </td>
+      
+      <td class="score score-high">
+        8.6
+      </td>
+      
+      <td class="score score-high">
+        7.9
+      </td>
+      
+      <td class="score score-high">
+        9.8
+      </td>
+      
+      <td class="score score-high">
+        7.2
+      </td>
+      
+      <td class="score score-high">
+        8.7
+      </td>
+      
+      <td>0.0</td>
+      <td>53.9</td>
+      <td>767ms</td>
+      <td>—</td>
+      <td class="efficiency">—</td>
+    </tr>
+    
+    <tr>
+      <td><strong>Qwen3.5-27B (8-bit)</strong></td>
+      <td class="score score-high">
+        8.2
+      </td>
+      
+      <td class="score score-high">
+        7.5
+      </td>
+      
+      <td class="score score-mid">
+        6.3
+      </td>
+      
+      <td class="score score-high">
+        9.1
+      </td>
+      
+      <td class="score score-high">
+        8.3
+      </td>
+      
+      <td class="score score-high">
+        9.7
+      </td>
+      
+      <td class="score score-high">
+        7.7
+      </td>
+      
+      <td class="score score-high">
+        8.8
+      </td>
+      
+      <td>0.0</td>
+      <td>24.0</td>
+      <td>4973ms</td>
+      <td>—</td>
+      <td class="efficiency">—</td>
+    </tr>
+    
+    </tbody>
+  </table>
+</div>
+
+<div class="card" style="margin-top: 2rem;">
+  <h3>Per-Task Detail</h3>
+  <table>
+    <thead><tr><th>Task</th><th>Category</th>
+    <th>qwen/qwen3-coder-next</th><th>qwen/qwen3.5-35b-a3b</th><th>nvidia/nemotron-3-nano</th><th>nvidia/nemotron-3-super</th><th>qwen/qwen3.5-9b</th><th>qwen3.5-27b@8bit</th>
+    </tr></thead>
+    <tbody>
+    
+    <tr>
+      <td>coding_001</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.79
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_002</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_003</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.79
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+      <td class="score score-mid">
+        0.67
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_004</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-high">
+        0.79
+      </td>
+      
+      <td class="score score-mid">
+        0.69
+      </td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_005</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_006</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.69
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-mid">
+        0.66
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_007</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.62
+      </td>
+      
+      <td class="score score-mid">
+        0.70
+      </td>
+      
+      <td class="score score-mid">
+        0.62
+      </td>
+      
+      <td class="score score-high">
+        0.77
+      </td>
+      
+      <td class="score score-mid">
+        0.56
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_008</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+      <td class="score score-mid">
+        0.67
+      </td>
+      
+      <td class="score score-mid">
+        0.47
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-mid">
+        0.64
+      </td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_009</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+      <td class="score score-mid">
+        0.61
+      </td>
+      
+      <td class="score score-low">
+        0.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_010</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-mid">
+        0.54
+      </td>
+      
+      <td class="score score-mid">
+        0.67
+      </td>
+      
+      <td class="score score-mid">
+        0.63
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_011</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.67
+      </td>
+      
+      <td class="score score-mid">
+        0.59
+      </td>
+      
+      <td class="score score-mid">
+        0.61
+      </td>
+      
+      <td class="score score-mid">
+        0.64
+      </td>
+      
+      <td class="score score-mid">
+        0.51
+      </td>
+      
+      <td class="score score-mid">
+        0.64
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_012</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+      <td class="score score-mid">
+        0.67
+      </td>
+      
+      <td class="score score-mid">
+        0.61
+      </td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+      <td class="score score-mid">
+        0.57
+      </td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_013</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.69
+      </td>
+      
+      <td class="score score-mid">
+        0.68
+      </td>
+      
+      <td class="score score-mid">
+        0.69
+      </td>
+      
+      <td class="score score-high">
+        0.73
+      </td>
+      
+      <td class="score score-mid">
+        0.67
+      </td>
+      
+      <td class="score score-mid">
+        0.62
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_014</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-mid">
+        0.66
+      </td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>coding_015</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.73
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-mid">
+        0.62
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-mid">
+        0.59
+      </td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>memory_001</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.46
+      </td>
+      
+      <td class="score score-mid">
+        0.43
+      </td>
+      
+      <td class="score score-mid">
+        0.43
+      </td>
+      
+      <td class="score score-mid">
+        0.43
+      </td>
+      
+      <td class="score score-mid">
+        0.43
+      </td>
+      
+      <td class="score score-mid">
+        0.43
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>memory_002</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>memory_003</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.67
+      </td>
+      
+      <td class="score score-mid">
+        0.55
+      </td>
+      
+      <td class="score score-mid">
+        0.55
+      </td>
+      
+      <td class="score score-mid">
+        0.55
+      </td>
+      
+      <td class="score score-mid">
+        0.55
+      </td>
+      
+      <td class="score score-mid">
+        0.64
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>memory_004</td>
+      <td>unknown</td>
+      
+      <td class="score score-low">
+        0.35
+      </td>
+      
+      <td class="score score-low">
+        0.35
+      </td>
+      
+      <td class="score score-low">
+        0.23
+      </td>
+      
+      <td class="score score-low">
+        0.35
+      </td>
+      
+      <td class="score score-low">
+        0.35
+      </td>
+      
+      <td class="score score-high">
+        0.71
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>memory_005</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>memory_006</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.43
+      </td>
+      
+      <td class="score score-mid">
+        0.46
+      </td>
+      
+      <td class="score score-low">
+        0.30
+      </td>
+      
+      <td class="score score-mid">
+        0.43
+      </td>
+      
+      <td class="score score-mid">
+        0.43
+      </td>
+      
+      <td class="score score-mid">
+        0.43
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>memory_007</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.63
+      </td>
+      
+      <td class="score score-high">
+        0.73
+      </td>
+      
+      <td class="score score-high">
+        0.73
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-mid">
+        0.67
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_001</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_002</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.96
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-mid">
+        0.66
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_003</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.92
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.96
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_004</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_005</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_006</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.80
+      </td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+      <td class="score score-mid">
+        0.58
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_007</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.50
+      </td>
+      
+      <td class="score score-mid">
+        0.56
+      </td>
+      
+      <td class="score score-mid">
+        0.48
+      </td>
+      
+      <td class="score score-mid">
+        0.52
+      </td>
+      
+      <td class="score score-mid">
+        0.50
+      </td>
+      
+      <td class="score score-mid">
+        0.56
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_008</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+      <td class="score score-high">
+        0.96
+      </td>
+      
+      <td class="score score-high">
+        0.92
+      </td>
+      
+      <td class="score score-high">
+        0.84
+      </td>
+      
+      <td class="score score-high">
+        0.96
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_009</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.92
+      </td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_010</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-low">
+        0.18
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.96
+      </td>
+      
+      <td class="score score-high">
+        0.92
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_011</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.63
+      </td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+      <td class="score score-high">
+        0.80
+      </td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_012</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.71
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-high">
+        0.80
+      </td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_013</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.80
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_014</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.96
+      </td>
+      
+      <td class="score score-high">
+        0.96
+      </td>
+      
+      <td class="score score-mid">
+        0.44
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-mid">
+        0.58
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>reasoning_015</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.96
+      </td>
+      
+      <td class="score score-high">
+        0.96
+      </td>
+      
+      <td class="score score-mid">
+        0.66
+      </td>
+      
+      <td class="score score-high">
+        0.98
+      </td>
+      
+      <td class="score score-high">
+        0.96
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_001</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.53
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.74
+      </td>
+      
+      <td class="score score-mid">
+        0.53
+      </td>
+      
+      <td class="score score-mid">
+        0.50
+      </td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_002</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_003</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.73
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_004</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_005</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.73
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.79
+      </td>
+      
+      <td class="score score-high">
+        0.73
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_006</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.75
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_007</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_008</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_009</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-mid">
+        0.66
+      </td>
+      
+      <td class="score score-mid">
+        0.66
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_010</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.84
+      </td>
+      
+      <td class="score score-high">
+        0.87
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.87
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_011</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.84
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.79
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_012</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.73
+      </td>
+      
+      <td class="score score-high">
+        0.75
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.80
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_013</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.58
+      </td>
+      
+      <td class="score score-high">
+        0.84
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-mid">
+        0.61
+      </td>
+      
+      <td class="score score-high">
+        0.84
+      </td>
+      
+      <td class="score score-high">
+        0.84
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_014</td>
+      <td>unknown</td>
+      
+      <td class="score score-mid">
+        0.60
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-mid">
+        0.60
+      </td>
+      
+      <td class="score score-low">
+        0.00
+      </td>
+      
+      <td class="score score-mid">
+        0.61
+      </td>
+      
+      <td class="score score-mid">
+        0.62
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>research_015</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-mid">
+        0.59
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_001</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_002</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_003</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_004</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_005</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_006</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_007</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_008</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_009</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_010</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_011</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_012</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_013</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_014</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>speed_015</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-mid">
+        0.67
+      </td>
+      
+      <td class="score score-mid">
+        0.67
+      </td>
+      
+      <td class="score score-mid">
+        0.50
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_001</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_002</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_003</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_004</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_005</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_006</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-high">
+        0.75
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-mid">
+        0.65
+      </td>
+      
+      <td class="score score-high">
+        0.75
+      </td>
+      
+      <td class="score score-mid">
+        0.47
+      </td>
+      
+      <td class="score score-high">
+        0.75
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_007</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-mid">
+        0.42
+      </td>
+      
+      <td class="score score-mid">
+        0.42
+      </td>
+      
+      <td class="score score-mid">
+        0.42
+      </td>
+      
+      <td class="score score-mid">
+        0.42
+      </td>
+      
+      <td class="score score-mid">
+        0.42
+      </td>
+      
+      <td class="score score-mid">
+        0.42
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_008</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+      <td class="score score-high">
+        1.00
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_009</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-mid">
+        0.62
+      </td>
+      
+      <td class="score score-mid">
+        0.55
+      </td>
+      
+      <td class="score score-high">
+        0.84
+      </td>
+      
+      <td class="score score-high">
+        0.84
+      </td>
+      
+      <td class="score score-mid">
+        0.47
+      </td>
+      
+      <td class="score score-high">
+        0.84
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_010</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+      <td class="score score-high">
+        0.70
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_011</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.72
+      </td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.80
+      </td>
+      
+      <td class="score score-high">
+        0.80
+      </td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_012</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-mid">
+        0.60
+      </td>
+      
+      <td class="score score-mid">
+        0.60
+      </td>
+      
+      <td class="score score-mid">
+        0.60
+      </td>
+      
+      <td class="score score-mid">
+        0.60
+      </td>
+      
+      <td class="score score-mid">
+        0.60
+      </td>
+      
+      <td class="score score-mid">
+        0.60
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_013</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-low">
+        0.30
+      </td>
+      
+      <td class="score score-low">
+        0.20
+      </td>
+      
+      <td class="score score-low">
+        0.20
+      </td>
+      
+      <td class="score score-mid">
+        0.45
+      </td>
+      
+      <td class="score score-low">
+        0.30
+      </td>
+      
+      <td class="score score-low">
+        0.30
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_014</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-low">
+        0.16
+      </td>
+      
+      <td class="score score-low">
+        0.16
+      </td>
+      
+      <td class="score score-low">
+        0.23
+      </td>
+      
+      <td class="score score-low">
+        0.16
+      </td>
+      
+      <td class="score score-low">
+        0.16
+      </td>
+      
+      <td class="score score-low">
+        0.16
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>tool_calling_015</td>
+      <td>tool_calling</td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-high">
+        0.92
+      </td>
+      
+      <td class="score score-high">
+        0.73
+      </td>
+      
+      <td class="score score-high">
+        0.84
+      </td>
+      
+      <td class="score score-high">
+        0.92
+      </td>
+      
+      <td class="score score-high">
+        0.92
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_001</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_002</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.78
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_003</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.79
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_004</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_005</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.73
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_006</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_007</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_008</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_009</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+      <td class="score score-high">
+        0.94
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_010</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.90
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_011</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.91
+      </td>
+      
+      <td class="score score-high">
+        0.93
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_012</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-high">
+        0.77
+      </td>
+      
+      <td class="score score-high">
+        0.80
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_013</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.76
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_014</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.88
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.82
+      </td>
+      
+      <td class="score score-high">
+        0.83
+      </td>
+      
+      <td class="score score-high">
+        0.81
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+    </tr>
+    
+    <tr>
+      <td>writing_015</td>
+      <td>unknown</td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.79
+      </td>
+      
+      <td class="score score-high">
+        0.77
+      </td>
+      
+      <td class="score score-high">
+        0.85
+      </td>
+      
+      <td class="score score-high">
+        0.86
+      </td>
+      
+      <td class="score score-high">
+        0.80
+      </td>
+      
+    </tr>
+    
+    </tbody>
+  </table>
+</div>
+
+<script>
+const categories = ["coding", "memory", "reasoning", "research", "speed", "tool_calling", "writing"];
+const modelColors = ['#58a6ff', '#3fb950', '#d29922', '#f85149', '#bc8cff', '#79c0ff', '#d2a8ff'];
+
+// Radar chart
+const radarData = {
+  labels: categories,
+  datasets: [
+    
+    {
+      label: 'Qwen3-Coder-Next (80B)',
+      data: [0.759,0.580,0.863,0.800,0.978,0.747,0.893],
+      borderColor: modelColors[0 % modelColors.length],
+      backgroundColor: modelColors[0 % modelColors.length] + '20',
+      pointRadius: 4,
+    },
+    
+    {
+      label: 'Qwen3.5-35B-A3B (MoE)',
+      data: [0.731,0.578,0.893,0.839,0.989,0.741,0.887],
+      borderColor: modelColors[1 % modelColors.length],
+      backgroundColor: modelColors[1 % modelColors.length] + '20',
+      pointRadius: 4,
+    },
+    
+    {
+      label: 'Nemotron-3-Nano',
+      data: [0.730,0.541,0.727,0.792,0.978,0.746,0.830],
+      borderColor: modelColors[2 % modelColors.length],
+      backgroundColor: modelColors[2 % modelColors.length] + '20',
+      pointRadius: 4,
+    },
+    
+    {
+      label: 'Nemotron-3-Super',
+      data: [0.763,0.569,0.852,0.720,0.978,0.771,0.876],
+      borderColor: modelColors[3 % modelColors.length],
+      backgroundColor: modelColors[3 % modelColors.length] + '20',
+      pointRadius: 4,
+    },
+    
+    {
+      label: 'Qwen3.5-9B',
+      data: [0.667,0.565,0.864,0.786,0.978,0.723,0.874],
+      borderColor: modelColors[4 % modelColors.length],
+      backgroundColor: modelColors[4 % modelColors.length] + '20',
+      pointRadius: 4,
+    },
+    
+    {
+      label: 'Qwen3.5-27B (8-bit)',
+      data: [0.750,0.633,0.911,0.834,0.967,0.767,0.885],
+      borderColor: modelColors[5 % modelColors.length],
+      backgroundColor: modelColors[5 % modelColors.length] + '20',
+      pointRadius: 4,
+    },
+    
+  ]
+};
+
+new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: radarData,
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { r: { min: 0, max: 1, ticks: { stepSize: 0.2, color: '#8b949e' },
+                    grid: { color: '#21262d' }, pointLabels: { color: '#c9d1d9' } } },
+    plugins: { legend: { labels: { color: '#c9d1d9' } } }
+  }
+});
+
+// Speed bar chart
+const speedData = {
+  labels: ['Qwen3-Coder-Next (80B)','Qwen3.5-35B-A3B (MoE)','Nemotron-3-Nano','Nemotron-3-Super','Qwen3.5-9B','Qwen3.5-27B (8-bit)'],
+  datasets: [{
+    label: 'Tokens/sec',
+    data: [0.0,0.0,0.0,0.0,0.0,0.0],
+    backgroundColor: modelColors.slice(0, 6),
+  }]
+};
+
+new Chart(document.getElementById('speedChart'), {
+  type: 'bar',
+  data: speedData,
+  options: {
+    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+    scales: { x: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } },
+              y: { ticks: { color: '#c9d1d9' }, grid: { display: false } } },
+    plugins: { legend: { display: false } }
+  }
+});
+</script>
+</body>
+</html>

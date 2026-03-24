@@ -10,8 +10,8 @@ from typing import Any
 from openai import OpenAI
 
 
-JUDGE_MODEL = "claude-sonnet-4-6-20260514"
-JUDGE_BASE_URL = "https://api.anthropic.com/v1"
+JUDGE_MODEL = "gpt-5.4"
+JUDGE_BASE_URL = "https://api.openai.com/v1"
 
 
 @dataclass
@@ -141,20 +141,80 @@ def _parse_judge_response(raw: str, criteria: list[str]) -> tuple[dict[str, floa
 
 
 class JudgeScorer:
-    """Score responses using an LLM judge (Claude via Anthropic API)."""
+    """Score responses using an LLM judge (Claude via API or CLI)."""
 
     def __init__(
         self,
         api_key: str | None = None,
         model: str = JUDGE_MODEL,
         base_url: str = JUDGE_BASE_URL,
+        use_cli: bool = False,
     ):
         self._api_key = api_key or os.environ.get("ANTHROPIC_API_KEY", "")
         self._model = model
-        self._client = OpenAI(
-            api_key=self._api_key,
-            base_url=base_url,
+        self._use_cli = use_cli or (not self._api_key)
+        self._client: OpenAI | None = None
+
+        if not self._use_cli:
+            self._client = OpenAI(
+                api_key=self._api_key,
+                base_url=base_url,
+            )
+
+    def _call_claude_cli(self, prompt: str, retries: int = 3) -> str:
+        """Call claude CLI with OAuth auth, with retries. Uses temp file for prompt."""
+        import subprocess
+        import tempfile
+        import time as _time
+        for attempt in range(retries):
+            try:
+                # Write prompt to temp file to avoid shell escaping issues
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+                    f.write(prompt)
+                    tmppath = f.name
+                
+                # Read prompt from file via shell
+                result = subprocess.run(
+                    ["bash", "-c", f'cat "{tmppath}" | claude --permission-mode bypassPermissions --print -'],
+                    capture_output=True, text=True, timeout=180,
+                    env={**os.environ, "HOME": os.path.expanduser("~")},
+                )
+                
+                # Clean up
+                try:
+                    os.unlink(tmppath)
+                except OSError:
+                    pass
+                
+                output = result.stdout.strip()
+                if output:
+                    return output
+                # Log stderr for debugging
+                if result.stderr:
+                    import sys
+                    print(f"  [judge] stderr: {result.stderr[:200]}", file=sys.stderr)
+                if attempt < retries - 1:
+                    _time.sleep(2)
+            except subprocess.TimeoutExpired:
+                if attempt < retries - 1:
+                    _time.sleep(5)
+            except Exception as e:
+                import sys
+                print(f"  [judge] CLI error: {e}", file=sys.stderr)
+                if attempt < retries - 1:
+                    _time.sleep(2)
+        return ""
+
+    def _call_api(self, prompt: str) -> str:
+        """Call via OpenAI-compatible API."""
+        assert self._client is not None
+        response = self._client.chat.completions.create(
+            model=self._model,
+            messages=[{"role": "user", "content": prompt}],
+            max_completion_tokens=1024,
+            temperature=0.0,
         )
+        return response.choices[0].message.content or ""
 
     def score_response(
         self,
@@ -173,14 +233,16 @@ class JudgeScorer:
         prompt = _build_judge_prompt(category, task_prompt, model_response)
 
         try:
-            response = self._client.chat.completions.create(
-                model=self._model,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1024,
-                temperature=0.0,
-            )
+            if self._use_cli:
+                raw_text = self._call_claude_cli(prompt)
+            else:
+                raw_text = self._call_api(prompt)
 
-            raw_text = response.choices[0].message.content or ""
+            # Debug: log raw judge output
+            with open("/tmp/claweval-judge-debug.log", "a") as _dbg:
+                _dbg.write(f"\n=== {task_id} ===\n")
+                _dbg.write(f"RAW ({len(raw_text)} chars): {repr(raw_text[:500])}\n")
+
             scores, feedback = _parse_judge_response(raw_text, criteria)
 
             # Overall = average of criteria scores, normalized to 0-1
@@ -194,6 +256,8 @@ class JudgeScorer:
             )
 
         except Exception as e:
+            import sys
+            print(f"  [judge] ERROR on {task_id}: {e}", file=sys.stderr)
             return JudgeScore(
                 task_id=task_id,
                 overall=0.0,

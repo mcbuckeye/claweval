@@ -59,7 +59,7 @@ class TaskResult:
             "model_id": self.model_id,
             "score": self.score.to_dict() if self.score else None,
             "timing": self.timing.to_dict(),
-            "response_text": self.response_text[:500],
+            "response_text": self.response_text[:2000],
             "tool_calls_made": self.tool_calls_made,
             "error": self.error,
         }
@@ -117,7 +117,8 @@ def run_task(
             kwargs: dict[str, Any] = {
                 "model": model.id,
                 "messages": messages,
-                "timeout": settings.timeout_seconds,
+                "timeout": settings.timeout_seconds if settings.timeout_seconds > 0 else None,
+                "max_tokens": 16384,
             }
             if tools:
                 kwargs["tools"] = tools
@@ -126,6 +127,7 @@ def run_task(
             stream = client.chat.completions.create(stream=True, **kwargs)
 
             response_chunks: list[str] = []
+            reasoning_chunks: list[str] = []
             turn_tool_calls: dict[int, dict[str, Any]] = {}
             usage_data: dict[str, int] = {}
             chunk_count = 0
@@ -137,13 +139,13 @@ def run_task(
 
                 choice = chunk.choices[0] if chunk.choices else None
                 if choice and choice.delta:
-                    # Text content (check both content and reasoning_content for thinking models)
+                    # Text content — the actual answer
                     if choice.delta.content:
                         response_chunks.append(choice.delta.content)
-                    # Capture reasoning/thinking content as fallback
+                    # Reasoning/thinking content — track separately
                     reasoning = getattr(choice.delta, "reasoning_content", None)
-                    if reasoning and not choice.delta.content:
-                        response_chunks.append(reasoning)
+                    if reasoning:
+                        reasoning_chunks.append(reasoning)
 
                     # Tool calls
                     if choice.delta.tool_calls:
@@ -216,7 +218,12 @@ def run_task(
                     })
             else:
                 # No more tool calls — we're done
-                result.response_text = "".join(response_chunks)
+                # Use actual content; fall back to reasoning only if content is empty
+                content = "".join(response_chunks)
+                if content.strip():
+                    result.response_text = content
+                else:
+                    result.response_text = "".join(reasoning_chunks)
                 break
 
         end_time = time.perf_counter()

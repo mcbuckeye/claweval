@@ -44,6 +44,7 @@ class Settings:
         "tool_calling", "coding", "reasoning", "writing",
         "research", "memory", "speed",
     ])
+    raw: dict = field(default_factory=dict)  # raw settings for extra fields
 
 
 @dataclass
@@ -105,6 +106,7 @@ def load_config(path: str | Path) -> EvalConfig:
         warmup_requests=raw_settings.get("warmup_requests", 2),
         runs_per_task=raw_settings.get("runs_per_task", 1),
         categories=raw_settings.get("categories", Settings().categories),
+        raw=raw_settings,
     )
 
     return EvalConfig(models=models, settings=settings)
