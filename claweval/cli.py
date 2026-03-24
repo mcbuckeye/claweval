@@ -208,7 +208,7 @@ def run(config_path: str, category: tuple[str, ...], model_filter: str | None,
     json_path = save_json_results(all_results, model_names, out)
     click.echo(f"Results saved: {json_path}")
 
-    html_path = generate_dashboard(all_results, model_names, out)
+    html_path = generate_dashboard(all_results, model_names, out, tasks=tasks)
     click.echo(f"Dashboard:     {html_path}")
 
     # Clean up checkpoint
@@ -253,6 +253,7 @@ def report(results_dir: str, results_file: str | None):
                 total_score=score_data["total_score"],
                 breakdown=score_data.get("breakdown", {}),
                 details=score_data.get("details", {}),
+                judge_score=score_data.get("judge_score"),
             ) if score_data else None
 
             timing_data = task_data.get("timing", {})
@@ -275,9 +276,13 @@ def report(results_dir: str, results_file: str | None):
                 error=task_data.get("error", ""),
             ))
 
+    # Load task metadata from YAML files
+    all_tasks = load_tasks()
+
     html_path = generate_dashboard(
         all_results, model_names, results_path,
         run_id=data.get("run_id", "unknown"),
+        tasks=all_tasks,
     )
     click.echo(f"Dashboard generated: {html_path}")
 

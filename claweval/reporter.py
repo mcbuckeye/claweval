@@ -45,6 +45,38 @@ DASHBOARD_TEMPLATE = """\
   .model-badge { display: inline-block; padding: 2px 8px; border-radius: 12px;
                  font-size: 0.75rem; font-weight: 600; margin-right: 4px; }
   .efficiency { color: #bc8cff; font-weight: 600; }
+  .task-link { color: #58a6ff; cursor: pointer; text-decoration: underline; }
+  .task-link:hover { color: #79c0ff; }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+                   z-index: 1000; justify-content: center; align-items: flex-start;
+                   padding: 3rem 1rem; overflow-y: auto; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+           max-width: 900px; width: 100%; padding: 2rem; position: relative;
+           max-height: 85vh; overflow-y: auto; }
+  .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none;
+                 color: #8b949e; font-size: 1.5rem; cursor: pointer; line-height: 1; }
+  .modal-close:hover { color: #e6edf3; }
+  .modal h2 { margin-bottom: 0.25rem; font-size: 1.3rem; }
+  .modal .meta-line { color: #8b949e; font-size: 0.85rem; margin-bottom: 1rem; }
+  .modal .badge { display: inline-block; padding: 2px 10px; border-radius: 12px;
+                  font-size: 0.75rem; font-weight: 600; margin-right: 6px; }
+  .badge-easy { background: #238636; color: #fff; }
+  .badge-medium { background: #9e6a03; color: #fff; }
+  .badge-hard { background: #da3633; color: #fff; }
+  .modal-section { margin-top: 1.25rem; }
+  .modal-section h4 { color: #8b949e; text-transform: uppercase; font-size: 0.75rem;
+                      letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .modal-section pre { background: #0d1117; border: 1px solid #21262d; border-radius: 6px;
+                       padding: 0.75rem 1rem; overflow-x: auto; white-space: pre-wrap;
+                       word-break: break-word; font-size: 0.82rem; color: #c9d1d9;
+                       max-height: 300px; overflow-y: auto; }
+  .model-response { margin-top: 0.75rem; }
+  .model-response summary { cursor: pointer; font-weight: 600; color: #e6edf3; font-size: 0.9rem; }
+  .model-response summary:hover { color: #58a6ff; }
+  .model-response .resp-score { font-size: 0.8rem; margin-left: 0.5rem; }
   @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -105,7 +137,7 @@ DASHBOARD_TEMPLATE = """\
     <tbody>
     {% for task_id, task_data in task_details.items() %}
     <tr>
-      <td>{{ task_id }}</td>
+      <td><span class="task-link" onclick="openTaskModal('{{ task_id }}')">{{ task_id }}</span></td>
       <td>{{ task_data.category }}</td>
       {% for model_id in models %}
       <td class="score {{ 'score-high' if task_data.scores.get(model_id, 0) >= 0.7 else ('score-mid' if task_data.scores.get(model_id, 0) >= 0.4 else 'score-low') }}">
@@ -118,7 +150,93 @@ DASHBOARD_TEMPLATE = """\
   </table>
 </div>
 
+<!-- Task Detail Modal -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeTaskModal()">&times;</button>
+    <div id="taskModalContent"></div>
+  </div>
+</div>
+
 <script>
+const TASK_META = {{ task_meta_json }};
+const MODEL_NAMES = {{ model_names_json }};
+
+function escapeHtml(s) {
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
+function openTaskModal(taskId) {
+  const m = TASK_META[taskId];
+  const overlay = document.getElementById('taskModal');
+  const content = document.getElementById('taskModalContent');
+  if (!m) {
+    content.innerHTML = '<h2>' + escapeHtml(taskId) + '</h2><p>No metadata available for this task.</p>';
+    overlay.classList.add('active');
+    return;
+  }
+  const diffClass = 'badge-' + (m.difficulty || 'medium');
+  let html = '<h2>' + escapeHtml(m.name || taskId) + '</h2>';
+  html += '<div class="meta-line"><span class="badge ' + diffClass + '">' + escapeHtml(m.difficulty || 'medium') + '</span>';
+  html += '<span class="badge" style="background:#30363d;color:#c9d1d9;">' + escapeHtml(m.category || '') + '</span>';
+  html += ' &mdash; ' + escapeHtml(taskId) + '</div>';
+  if (m.description) html += '<p style="margin-bottom:0.75rem;">' + escapeHtml(m.description) + '</p>';
+
+  html += '<div class="modal-section"><h4>System Prompt</h4><pre>' + escapeHtml(m.system_prompt || '(none)') + '</pre></div>';
+  html += '<div class="modal-section"><h4>User Message</h4><pre>' + escapeHtml(m.user_message || '(none)') + '</pre></div>';
+
+  // Expected
+  const exp = m.expected || {};
+  let expParts = [];
+  if (exp.response_contains && exp.response_contains.length) expParts.push('Keywords: ' + exp.response_contains.join(', '));
+  if (exp.exact_match) expParts.push('Exact match: ' + exp.exact_match);
+  if (exp.tool_calls && exp.tool_calls.length) expParts.push('Tool calls: ' + JSON.stringify(exp.tool_calls, null, 2));
+  if (expParts.length) {
+    html += '<div class="modal-section"><h4>Expected</h4><pre>' + escapeHtml(expParts.join('\\n\\n')) + '</pre></div>';
+  }
+
+  // Model responses
+  const models = m.models || {};
+  const modelIds = Object.keys(models);
+  if (modelIds.length) {
+    html += '<div class="modal-section"><h4>Model Responses</h4>';
+    modelIds.forEach(function(mid) {
+      const r = models[mid];
+      const displayName = MODEL_NAMES[mid] || mid;
+      const sc = (r.score != null) ? r.score.toFixed(2) : '—';
+      const scoreClass = r.score >= 0.7 ? 'score-high' : (r.score >= 0.4 ? 'score-mid' : 'score-low');
+      html += '<details class="model-response"><summary>' + escapeHtml(displayName);
+      html += '<span class="resp-score score ' + scoreClass + '">' + sc + '</span></summary>';
+      // Breakdown
+      if (r.breakdown && Object.keys(r.breakdown).length) {
+        html += '<p style="font-size:0.8rem;color:#8b949e;margin:0.5rem 0 0.25rem;">Breakdown: ';
+        Object.entries(r.breakdown).forEach(function(e) { html += e[0] + '=' + (typeof e[1]==='number'?e[1].toFixed(2):e[1]) + ' '; });
+        html += '</p>';
+      }
+      if (r.judge_feedback) {
+        html += '<p style="font-size:0.8rem;color:#bc8cff;margin:0.25rem 0;">Judge: ' + escapeHtml(r.judge_feedback) + '</p>';
+      }
+      html += '<pre>' + escapeHtml(r.response_text || '(no response)') + '</pre></details>';
+    });
+    html += '</div>';
+  }
+
+  content.innerHTML = html;
+  overlay.classList.add('active');
+}
+
+function closeTaskModal() {
+  document.getElementById('taskModal').classList.remove('active');
+}
+
+document.getElementById('taskModal').addEventListener('click', function(e) {
+  if (e.target === this) closeTaskModal();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeTaskModal();
+});
+
 const categories = {{ categories_json }};
 const modelColors = ['#58a6ff', '#3fb950', '#d29922', '#f85149', '#bc8cff', '#79c0ff', '#d2a8ff'];
 
@@ -364,11 +482,57 @@ def save_json_results(
     return output_path
 
 
+def _build_task_metadata(tasks, results: list[TaskResult], summaries) -> dict[str, Any]:
+    """Build task metadata dict for embedding in the dashboard."""
+    from claweval.task_loader import Task
+
+    meta: dict[str, Any] = {}
+    for t in tasks:
+        expected: dict[str, Any] = {}
+        if t.expected.response_contains:
+            expected["response_contains"] = t.expected.response_contains
+        if t.expected.exact_match:
+            expected["exact_match"] = t.expected.exact_match
+        if t.expected.tool_calls:
+            expected["tool_calls"] = t.expected.tool_calls
+
+        meta[t.id] = {
+            "name": t.name,
+            "description": t.description,
+            "category": t.category,
+            "difficulty": t.difficulty,
+            "system_prompt": t.system_prompt,
+            "user_message": t.user_message,
+            "expected": expected,
+            "models": {},
+        }
+
+    # Attach per-model response data
+    for r in results:
+        if r.task_id not in meta:
+            continue
+        model_entry: dict[str, Any] = {
+            "response_text": r.response_text or "",
+            "score": r.score.total_score if r.score else 0.0,
+            "breakdown": r.score.breakdown if r.score else {},
+            "details": r.score.details if r.score else {},
+        }
+        # Judge feedback
+        if r.score and r.score.judge_score:
+            model_entry["judge_feedback"] = r.score.judge_score.get("feedback", "")
+        else:
+            model_entry["judge_feedback"] = ""
+        meta[r.task_id]["models"][r.model_id] = model_entry
+
+    return meta
+
+
 def generate_dashboard(
     results: list[TaskResult],
     model_names: dict[str, str] | None = None,
     output_dir: Path | None = None,
     run_id: str | None = None,
+    tasks: list | None = None,
 ) -> Path:
     """Generate an HTML dashboard from results."""
     output_dir = output_dir or RESULTS_DIR
@@ -394,6 +558,21 @@ def generate_dashboard(
             r.score.total_score if r.score else 0.0
         )
 
+    # Build task metadata for modal display
+    task_meta: dict[str, Any] = {}
+    if tasks:
+        task_meta = _build_task_metadata(tasks, results, summaries)
+
+    # Also attach judge feedback from results JSON (ScoreResult may carry it in details)
+    for r in results:
+        if r.task_id in task_meta and r.model_id in task_meta[r.task_id].get("models", {}):
+            entry = task_meta[r.task_id]["models"][r.model_id]
+            # Try to extract judge feedback from score details
+            if not entry.get("judge_feedback") and r.score and r.score.details:
+                jd = r.score.details.get("judge_score", {})
+                if isinstance(jd, dict) and jd.get("feedback"):
+                    entry["judge_feedback"] = jd["feedback"]
+
     template = Template(DASHBOARD_TEMPLATE)
     html = template.render(
         run_id=run_id,
@@ -413,6 +592,8 @@ def generate_dashboard(
             for mid, s in summaries.items()
         },
         task_details=task_details,
+        task_meta_json=json.dumps(task_meta, ensure_ascii=False),
+        model_names_json=json.dumps(model_names or {}, ensure_ascii=False),
     )
 
     output_path = output_dir / f"dashboard_{run_id.replace(':', '-')}.html"
