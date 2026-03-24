@@ -10,6 +10,7 @@ from typing import Any
 
 from jinja2 import Template
 
+from claweval.judge import RUBRICS
 from claweval.runner import TaskResult
 
 
@@ -77,6 +78,23 @@ DASHBOARD_TEMPLATE = """\
   .model-response summary { cursor: pointer; font-weight: 600; color: #e6edf3; font-size: 0.9rem; }
   .model-response summary:hover { color: #58a6ff; }
   .model-response .resp-score { font-size: 0.8rem; margin-left: 0.5rem; }
+  .rubric-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+  .rubric-table th { color: #8b949e; font-size: 0.75rem; text-transform: uppercase;
+                     text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #30363d;
+                     cursor: default; }
+  .rubric-table td { font-size: 0.82rem; padding: 0.4rem 0.6rem; border-bottom: 1px solid #21262d;
+                     color: #c9d1d9; vertical-align: top; }
+  .rubric-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;
+                font-weight: 600; margin: 2px 4px 2px 0; }
+  .rubric-tag-det { background: #1f3a5f; color: #58a6ff; }
+  .rubric-tag-judge { background: #2d1f4e; color: #bc8cff; }
+  .rubric-formula { background: #0d1117; border: 1px solid #21262d; border-radius: 6px;
+                    padding: 0.5rem 0.75rem; font-size: 0.82rem; color: #d2a8ff; margin-top: 0.5rem; }
+  .det-detail { font-size: 0.78rem; color: #8b949e; margin: 0.25rem 0; }
+  .det-detail .found { color: #3fb950; }
+  .det-detail .missing { color: #f85149; }
+  .judge-criteria { font-size: 0.78rem; margin: 0.25rem 0; }
+  .judge-criteria span { color: #bc8cff; font-weight: 600; }
   @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -195,6 +213,47 @@ function openTaskModal(taskId) {
     html += '<div class="modal-section"><h4>Expected</h4><pre>' + escapeHtml(expParts.join('\\n\\n')) + '</pre></div>';
   }
 
+  // Scoring Rubric section
+  const scoring = m.scoring || {};
+  const judgeRubric = m.judge_rubric || {};
+  const detOnly = m.deterministic_only || false;
+  html += '<div class="modal-section"><h4>Scoring Rubric</h4>';
+
+  // Deterministic scoring
+  html += '<p style="margin-bottom:0.5rem;font-size:0.85rem;"><span class="rubric-tag rubric-tag-det">DETERMINISTIC</span>';
+  html += ' Method: <strong>' + escapeHtml(scoring.method || 'deterministic') + '</strong></p>';
+
+  const weights = scoring.weights || {};
+  const wKeys = Object.keys(weights);
+  if (wKeys.length) {
+    html += '<table class="rubric-table"><thead><tr><th>Component</th><th>Weight</th><th>What\\'s Checked</th></tr></thead><tbody>';
+    wKeys.forEach(function(k) {
+      let desc = '';
+      if (k === 'correct_tool') desc = 'Expected tool names match actual calls';
+      else if (k === 'correct_params') desc = 'Expected tool parameters match actual args';
+      else if (k === 'response_quality') desc = 'Keywords found in response (response_contains list)';
+      else if (k === 'exact_match') desc = 'Response exactly matches expected string';
+      html += '<tr><td><code>' + escapeHtml(k) + '</code></td><td>' + (weights[k] * 100).toFixed(0) + '%</td><td>' + escapeHtml(desc) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+
+  // Judge rubric
+  const judgeKeys = Object.keys(judgeRubric);
+  if (judgeKeys.length && !detOnly) {
+    html += '<p style="margin-top:0.75rem;margin-bottom:0.5rem;font-size:0.85rem;"><span class="rubric-tag rubric-tag-judge">LLM JUDGE</span>';
+    html += ' Category: <strong>' + escapeHtml(m.category || '') + '</strong></p>';
+    html += '<table class="rubric-table"><thead><tr><th>Criterion</th><th>Rubric (0\u201310)</th></tr></thead><tbody>';
+    judgeKeys.forEach(function(k) {
+      html += '<tr><td><code>' + escapeHtml(k) + '</code></td><td>' + escapeHtml(judgeRubric[k]) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    html += '<div class="rubric-formula">\u2696\ufe0f Final Score = <strong>40%</strong> deterministic + <strong>60%</strong> judge</div>';
+  } else if (detOnly) {
+    html += '<p style="margin-top:0.5rem;font-size:0.82rem;color:#8b949e;">' + escapeHtml(m.category || '') + ' tasks are scored deterministically only (no LLM judge).</p>';
+  }
+  html += '</div>';
+
   // Model responses
   const models = m.models || {};
   const modelIds = Object.keys(models);
@@ -203,18 +262,46 @@ function openTaskModal(taskId) {
     modelIds.forEach(function(mid) {
       const r = models[mid];
       const displayName = MODEL_NAMES[mid] || mid;
-      const sc = (r.score != null) ? r.score.toFixed(2) : '—';
+      const sc = (r.score != null) ? r.score.toFixed(2) : '\u2014';
       const scoreClass = r.score >= 0.7 ? 'score-high' : (r.score >= 0.4 ? 'score-mid' : 'score-low');
       html += '<details class="model-response"><summary>' + escapeHtml(displayName);
       html += '<span class="resp-score score ' + scoreClass + '">' + sc + '</span></summary>';
-      // Breakdown
+
+      // Deterministic breakdown with details
       if (r.breakdown && Object.keys(r.breakdown).length) {
-        html += '<p style="font-size:0.8rem;color:#8b949e;margin:0.5rem 0 0.25rem;">Breakdown: ';
+        html += '<p style="font-size:0.8rem;color:#8b949e;margin:0.5rem 0 0.25rem;"><strong>Deterministic Breakdown:</strong> ';
         Object.entries(r.breakdown).forEach(function(e) { html += e[0] + '=' + (typeof e[1]==='number'?e[1].toFixed(2):e[1]) + ' '; });
         html += '</p>';
       }
+
+      // Detailed deterministic scoring info
+      const det = r.details || {};
+      if (det.response_contains) {
+        const rc = det.response_contains;
+        if (rc.found && rc.found.length) html += '<p class="det-detail">Keywords <span class="found">found</span>: ' + rc.found.map(escapeHtml).join(', ') + '</p>';
+        if (rc.missing && rc.missing.length) html += '<p class="det-detail">Keywords <span class="missing">missing</span>: ' + rc.missing.map(escapeHtml).join(', ') + '</p>';
+      }
+      if (det.tool_calls) {
+        const tc = det.tool_calls;
+        html += '<p class="det-detail">Tool calls: ' + (tc.name_matches||0) + '/' + (tc.expected_count||0) + ' names, ' + (tc.param_matches||0) + '/' + (tc.expected_count||0) + ' params correct</p>';
+      }
+      if (det.exact_match) {
+        const em = det.exact_match;
+        const emLabel = em.match === true ? '<span class="found">exact match</span>' : (em.match === 'case_insensitive' ? '<span class="found">case-insensitive match</span>' : '<span class="missing">no match</span>');
+        html += '<p class="det-detail">Exact match: ' + emLabel + '</p>';
+      }
+
+      // Judge per-criterion scores
+      const jc = r.judge_criteria || {};
+      const jcKeys = Object.keys(jc);
+      if (jcKeys.length) {
+        html += '<p class="judge-criteria"><strong style="color:#bc8cff;">Judge Scores:</strong> ';
+        jcKeys.forEach(function(k, i) { html += '<span>' + escapeHtml(k) + '</span>: ' + jc[k].toFixed(1) + '/10' + (i < jcKeys.length - 1 ? ', ' : ''); });
+        html += '</p>';
+      }
+
       if (r.judge_feedback) {
-        html += '<p style="font-size:0.8rem;color:#bc8cff;margin:0.25rem 0;">Judge: ' + escapeHtml(r.judge_feedback) + '</p>';
+        html += '<p style="font-size:0.8rem;color:#bc8cff;margin:0.25rem 0;">Judge Feedback: ' + escapeHtml(r.judge_feedback) + '</p>';
       }
       html += '<pre>' + escapeHtml(r.response_text || '(no response)') + '</pre></details>';
     });
@@ -482,6 +569,17 @@ def save_json_results(
     return output_path
 
 
+def _default_weights_for_display(task) -> dict[str, float]:
+    """Return default weights for display when task has no explicit weights."""
+    if task.expected.tool_calls:
+        return {"correct_tool": 0.4, "correct_params": 0.3, "response_quality": 0.3}
+    elif task.expected.exact_match:
+        return {"exact_match": 1.0}
+    elif task.expected.response_contains:
+        return {"response_quality": 1.0}
+    return {"response_quality": 1.0}
+
+
 def _build_task_metadata(tasks, results: list[TaskResult], summaries) -> dict[str, Any]:
     """Build task metadata dict for embedding in the dashboard."""
     from claweval.task_loader import Task
@@ -496,6 +594,16 @@ def _build_task_metadata(tasks, results: list[TaskResult], summaries) -> dict[st
         if t.expected.tool_calls:
             expected["tool_calls"] = t.expected.tool_calls
 
+        # Scoring config
+        scoring = {
+            "method": t.scoring.method,
+            "weights": t.scoring.weights or _default_weights_for_display(t),
+        }
+
+        # Judge rubric for this task's category
+        judge_rubric = RUBRICS.get(t.category, {})
+        is_deterministic_only = t.category in ("tool_calling", "speed")
+
         meta[t.id] = {
             "name": t.name,
             "description": t.description,
@@ -504,6 +612,9 @@ def _build_task_metadata(tasks, results: list[TaskResult], summaries) -> dict[st
             "system_prompt": t.system_prompt,
             "user_message": t.user_message,
             "expected": expected,
+            "scoring": scoring,
+            "judge_rubric": judge_rubric,
+            "deterministic_only": is_deterministic_only,
             "models": {},
         }
 
@@ -517,11 +628,13 @@ def _build_task_metadata(tasks, results: list[TaskResult], summaries) -> dict[st
             "breakdown": r.score.breakdown if r.score else {},
             "details": r.score.details if r.score else {},
         }
-        # Judge feedback
+        # Judge feedback and per-criterion scores
         if r.score and r.score.judge_score:
             model_entry["judge_feedback"] = r.score.judge_score.get("feedback", "")
+            model_entry["judge_criteria"] = r.score.judge_score.get("criteria_scores", {})
         else:
             model_entry["judge_feedback"] = ""
+            model_entry["judge_criteria"] = {}
         meta[r.task_id]["models"][r.model_id] = model_entry
 
     return meta
