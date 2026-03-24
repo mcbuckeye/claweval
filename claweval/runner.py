@@ -59,7 +59,7 @@ class TaskResult:
             "model_id": self.model_id,
             "score": self.score.to_dict() if self.score else None,
             "timing": self.timing.to_dict(),
-            "response_text": self.response_text[:2000],
+            "response_text": self.response_text,
             "tool_calls_made": self.tool_calls_made,
             "error": self.error,
         }
@@ -238,9 +238,10 @@ def run_task(
         estimated_gen_tok_s = 0.0
         if comp_tokens and gen_time_ms > 0:
             estimated_gen_tok_s = comp_tokens / (gen_time_ms / 1000)
-        elif chunk_count > 0 and gen_time_ms > 0:
-            # Rough estimate: ~1.3 tokens per chunk on average
-            estimated_gen_tok_s = (chunk_count * 1.3) / (gen_time_ms / 1000)
+        elif gen_time_ms > 0 and result.response_text:
+            # Estimate tokens from response length (~4 chars per token)
+            est_tokens = len(result.response_text) / 4
+            estimated_gen_tok_s = est_tokens / (gen_time_ms / 1000)
 
         result.timing = TimingInfo(
             wall_clock_ms=wall_ms,
