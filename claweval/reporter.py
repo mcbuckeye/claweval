@@ -259,8 +259,6 @@ def aggregate_results(
         all_ttft = [r.timing.ttft_ms for r in task_results if r.timing.ttft_ms > 0]
         all_gen_tok_s = [r.timing.estimated_gen_tok_s for r in task_results if r.timing.estimated_gen_tok_s > 0]
 
-        overall = sum(cat_scores.values()) / len(cat_scores) if cat_scores else 0.0
-
         avg_tok_s = sum(all_tok_s) / len(all_tok_s) if all_tok_s else 0
         avg_ttft = sum(all_ttft) / len(all_ttft) if all_ttft else 0
         avg_gen_tok_s = sum(all_gen_tok_s) / len(all_gen_tok_s) if all_gen_tok_s else 0
@@ -272,6 +270,9 @@ def aggregate_results(
         # Get ram_gb from first result's model config if available
         ram_gb = 0.0
         # ram_gb is passed through model_names dict extended format or set externally
+
+        # Overall score (will be recomputed after speed post-processing)
+        overall = sum(cat_scores.values()) / len(cat_scores) if cat_scores else 0.0
 
         # Efficiency metrics
         quality_per_gb = overall / ram_gb if ram_gb > 0 else 0
@@ -297,6 +298,28 @@ def aggregate_results(
             },
             ram_gb=ram_gb,
         )
+
+    # Post-processing: replace 'speed' category score with relative wall-clock speed
+    # so the Overall Scores table reflects actual speed differences between models.
+    model_avg_wall_s: dict[str, float] = {}
+    for model_id, task_results in by_model.items():
+        wall_times = [r.timing.wall_clock_ms for r in task_results]
+        avg_ms = sum(wall_times) / len(wall_times) if wall_times else 0
+        model_avg_wall_s[model_id] = avg_ms / 1000 if avg_ms > 0 else 0
+
+    fastest_avg = min(
+        (v for v in model_avg_wall_s.values() if v > 0), default=0
+    )
+
+    if fastest_avg > 0:
+        for model_id, summary in summaries.items():
+            avg_s = model_avg_wall_s.get(model_id, 0)
+            if avg_s > 0 and "speed" in summary.categories:
+                speed_score = fastest_avg / avg_s
+                summary.categories["speed"] = speed_score
+                # Recompute overall with the new speed score
+                cat_vals = summary.categories.values()
+                summary.overall = sum(cat_vals) / len(cat_vals) if cat_vals else 0.0
 
     return summaries
 

@@ -122,6 +122,43 @@ def test_dashboard_contains_scores(sample_results, tmp_path):
     assert "coding_001" in content
 
 
+def test_speed_category_uses_relative_wall_clock():
+    """Speed category score should reflect relative wall-clock time, not task pass rate."""
+    # Model A: fast (500ms avg), Model B: slow (1000ms avg, 2x slower)
+    results = [
+        # speed category tasks
+        _make_result("speed_001", "model-a", 0.9, 60.0),
+        _make_result("speed_002", "model-a", 0.8, 55.0),
+        _make_result("speed_001", "model-b", 0.9, 40.0),
+        _make_result("speed_002", "model-b", 0.8, 35.0),
+        # other category
+        _make_result("coding_001", "model-a", 0.7, 50.0),
+        _make_result("coding_001", "model-b", 0.6, 45.0),
+    ]
+    # Override wall_clock_ms: model-a is fast (500ms), model-b is slow (1000ms)
+    for r in results:
+        if r.model_id == "model-a":
+            r.timing.wall_clock_ms = 500
+        else:
+            r.timing.wall_clock_ms = 1000
+
+    summaries = aggregate_results(results)
+
+    # Fastest model (model-a, 500ms) should get speed score of 1.0
+    assert summaries["model-a"].categories["speed"] == pytest.approx(1.0, abs=0.01)
+    # Model-b is 2x slower, should get 0.5
+    assert summaries["model-b"].categories["speed"] == pytest.approx(0.5, abs=0.01)
+
+    # Overall should incorporate the new speed score
+    model_a = summaries["model-a"]
+    expected_overall_a = (model_a.categories["coding"] + 1.0) / 2
+    assert model_a.overall == pytest.approx(expected_overall_a, abs=0.01)
+
+    model_b = summaries["model-b"]
+    expected_overall_b = (model_b.categories["coding"] + 0.5) / 2
+    assert model_b.overall == pytest.approx(expected_overall_b, abs=0.01)
+
+
 def test_save_empty_results(tmp_path):
     path = save_json_results([], output_dir=tmp_path, run_id="empty")
     assert path.exists()
